@@ -3,26 +3,23 @@ const generateOtp = require("../utils/generateOtp");
 const { hashOtp, compareOtp } = require("../utils/hashOtp");
 const { sendOtpEmail } = require("./email.service");
 
+const normalizeEmail = (email) => String(email).toLowerCase().trim();
+
 async function createAndSendOtp(email) {
-  const normalizedEmail = String(email).toLowerCase().trim();
+  const normalizedEmail = normalizeEmail(email);
 
   const otp = generateOtp();
   const codeHash = await hashOtp(otp);
 
-  let user = await prisma.user.findUnique({
+  const user = await prisma.user.upsert({
     where: { email: normalizedEmail },
+    update: {},
+    create: {
+      email: normalizedEmail,
+      isVerified: false,
+    },
   });
 
-  if (!user) {
-    user = await prisma.user.create({
-      data: {
-        email: normalizedEmail,
-        isVerified: false,
-      },
-    });
-  }
-
-  // Mark older OTPs as used so only the latest OTP works
   await prisma.otp.updateMany({
     where: {
       email: normalizedEmail,
@@ -42,7 +39,6 @@ async function createAndSendOtp(email) {
     },
   });
 
-  // Development fallback: lets you test OTP even if email provider fails
   if (process.env.NODE_ENV !== "production") {
     console.log("====================================");
     console.log(`DEV OTP for ${normalizedEmail}: ${otp}`);
@@ -58,7 +54,6 @@ async function createAndSendOtp(email) {
       throw new Error("Failed to send OTP email.");
     }
 
-    // In development, don't fail login just because Resend is being dramatic
     return {
       emailSent: false,
       message: "OTP generated. Email failed, use terminal OTP in development.",
@@ -72,7 +67,7 @@ async function createAndSendOtp(email) {
 }
 
 async function verifyOtp(email, code) {
-  const normalizedEmail = String(email).toLowerCase().trim();
+  const normalizedEmail = normalizeEmail(email);
   const normalizedCode = String(code).trim();
 
   const otpRecord = await prisma.otp.findFirst({
