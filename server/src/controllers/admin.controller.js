@@ -2,12 +2,16 @@ const prisma = require("../config/prisma");
 
 async function getAdminStats(req, res, next) {
   try {
-    const [users, products, orders, bookings] = await Promise.all([
-      prisma.user.count(),
-      prisma.product.count(),
-      prisma.order.count(),
-      prisma.counsellingBooking.count(),
-    ]);
+  const [users, products, orders, bookings] = await Promise.all([
+  prisma.user.count(),
+  prisma.product.count({
+    where: {
+      isActive: true,
+    },
+  }),
+  prisma.order.count(),
+  prisma.counsellingBooking.count(),
+]);
 
     res.json({
       stats: {
