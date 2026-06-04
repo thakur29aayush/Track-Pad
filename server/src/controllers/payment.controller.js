@@ -1,5 +1,7 @@
 const { z } = require("zod");
+const crypto = require("crypto");
 const prisma = require("../config/prisma");
+const { razorpayWebhookSecret } = require("../config/env");
 const { createRazorpayOrder } = require("../services/payment.service");
 const verifyRazorpayPayment = require("../utils/verifyRazorpay");
 const { createPurchaseAccess } = require("../services/access.service");
@@ -30,7 +32,10 @@ async function createOrder(req, res, next) {
       return res.status(400).json({ message: "Invalid product selected." });
     }
 
-    const totalAmount = products.reduce((sum, product) => sum + product.price, 0);
+    const totalAmount = products.reduce(
+      (sum, product) => sum + product.price,
+      0
+    );
 
     const order = await prisma.order.create({
       data: {
@@ -104,7 +109,9 @@ async function verifyPayment(req, res, next) {
         data: { status: "FAILED" },
       });
 
-      return res.status(400).json({ message: "Payment verification failed." });
+      return res.status(400).json({
+        message: "Payment verification failed.",
+      });
     }
 
     const paidOrder = await prisma.order.update({
@@ -117,7 +124,7 @@ async function verifyPayment(req, res, next) {
     });
 
     await createPurchaseAccess({
-      userId: req.user.id,
+      userId: paidOrder.userId,
       orderId: paidOrder.id,
     });
 
@@ -130,7 +137,84 @@ async function verifyPayment(req, res, next) {
   }
 }
 
+async function razorpayWebhook(req, res, next) {
+  try {
+    const signature = req.headers["x-razorpay-signature"];
+
+    if (!razorpayWebhookSecret) {
+      return res.status(500).json({
+        message: "Webhook secret not configured.",
+      });
+    }
+
+    const expectedSignature = crypto
+      .createHmac("sha256", razorpayWebhookSecret)
+      .update(req.body)
+      .digest("hex");
+
+    if (signature !== expectedSignature) {
+      return res.status(400).json({
+        message: "Invalid webhook signature.",
+      });
+    }
+
+    const event = JSON.parse(req.body.toString());
+
+    if (event.event === "payment.captured" || event.event === "order.paid") {
+      const razorpayOrderId =
+        event.payload?.payment?.entity?.order_id ||
+        event.payload?.order?.entity?.id;
+
+      const razorpayPaymentId =
+        event.payload?.payment?.entity?.id || undefined;
+
+      if (razorpayOrderId) {
+        const order = await prisma.order.findUnique({
+          where: { razorpayOrderId },
+        });
+
+        if (order && order.status !== "PAID") {
+          const paidOrder = await prisma.order.update({
+            where: { id: order.id },
+            data: {
+              status: "PAID",
+              razorpayPaymentId:
+                razorpayPaymentId || order.razorpayPaymentId,
+            },
+          });
+
+          await createPurchaseAccess({
+            userId: paidOrder.userId,
+            orderId: paidOrder.id,
+          });
+        }
+      }
+    }
+
+    if (event.event === "payment.failed") {
+      const razorpayOrderId = event.payload?.payment?.entity?.order_id;
+
+      if (razorpayOrderId) {
+        await prisma.order.updateMany({
+          where: {
+            razorpayOrderId,
+            status: "PENDING",
+          },
+          data: {
+            status: "FAILED",
+          },
+        });
+      }
+    }
+
+    res.json({ received: true });
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   createOrder,
   verifyPayment,
+  razorpayWebhook,
 };

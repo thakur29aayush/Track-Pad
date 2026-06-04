@@ -27,6 +27,12 @@ app.use(
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(cookieParser());
+
+app.use(
+  "/api/payments/webhook",
+  express.raw({ type: "application/json" })
+);
+
 app.use(express.json());
 
 app.get("/", (req, res) => {
