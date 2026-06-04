@@ -1,0 +1,159 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum ProductType {
+  NOTION_TEMPLATE
+  HABIT_TRACKER
+  DIGITAL_PRODUCT
+  COUNSELLING
+  OTHER
+}
+
+enum DeliveryType {
+  LINK
+  FILE
+  BOTH
+  BOOKING
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+model User {
+  id          String   @id @default(cuid())
+  name        String?
+  email       String   @unique
+  role        Role     @default(USER)
+  isVerified  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  otps        Otp[]
+  orders      Order[]
+  purchases   Purchase[]
+  bookings    CounsellingBooking[]
+}
+
+model Otp {
+  id        String   @id @default(cuid())
+  email     String
+  codeHash  String
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([email])
+}
+
+model Product {
+  id           String       @id @default(cuid())
+  title        String
+  slug         String       @unique
+  description  String
+  price        Int
+  currency     String       @default("INR")
+  type         ProductType
+  deliveryType DeliveryType
+  thumbnail    String?
+  fileUrl      String?
+  deliveryUrl  String?
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  orderItems   OrderItem[]
+  purchases    Purchase[]
+  bookings     CounsellingBooking[]
+}
+
+model Order {
+  id                String      @id @default(cuid())
+  userId            String
+  totalAmount       Int
+  currency          String      @default("INR")
+  status            OrderStatus @default(PENDING)
+  razorpayOrderId   String?     @unique
+  razorpayPaymentId String?
+  razorpaySignature String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items             OrderItem[]
+  purchases         Purchase[]
+  booking           CounsellingBooking?
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  price     Int
+
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([orderId, productId])
+}
+
+model Purchase {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  orderId   String
+  accessUrl String?
+  fileUrl   String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+}
+
+model CounsellingBooking {
+  id            String        @id @default(cuid())
+  userId        String
+  productId     String?
+  orderId       String?       @unique
+  name          String
+  email         String
+  phone         String?
+  preferredDate DateTime?
+  message       String?
+  status        BookingStatus @default(PENDING)
+  paymentStatus OrderStatus   @default(PENDING)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product        Product?     @relation(fields: [productId], references: [id])
+  order          Order?       @relation(fields: [orderId], references: [id])
+}
