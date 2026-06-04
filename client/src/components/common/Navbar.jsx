@@ -79,7 +79,7 @@ const Navbar = () => {
     >
       <div className="gv-nav-inner">
         <Link to="/" className="gv-logo" onClick={closeMenu}>
-          Habit-Hive
+          Track Pad
         </Link>
 
         <nav className="gv-desktop-nav">
