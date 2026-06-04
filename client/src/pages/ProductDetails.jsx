@@ -91,48 +91,68 @@ const ProductDetails = () => {
       const data = await createPaymentOrder([product.id]);
 
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        amount: data.razorpayOrder.amount,
-        currency: data.razorpayOrder.currency,
-        name: "GreenVault",
-        description: product.title,
-        order_id: data.razorpayOrder.id,
-       config: {
-  display: {
-    blocks: {
-      upi: {
-        name: "Pay using UPI",
-        instruments: [
-          {
-            method: "upi",
-            flow: "collect",
-          },
-        ],
+  key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+  amount: data.razorpayOrder.amount,
+  currency: data.razorpayOrder.currency,
+  name: "GreenVault",
+  description: product.title,
+  order_id: data.razorpayOrder.id,
+
+  prefill: {
+    email: user.email,
+    contact: "9999999999",
+  },
+
+  method: {
+    upi: true,
+    card: false,
+    netbanking: false,
+    wallet: false,
+    emi: false,
+    paylater: false,
+  },
+
+  config: {
+    display: {
+      blocks: {
+        upi_collect: {
+          name: "Pay using UPI ID",
+          instruments: [
+            {
+              method: "upi",
+              flows: ["collect"],
+            },
+          ],
+        },
+      },
+      sequence: ["block.upi_collect"],
+      preferences: {
+        show_default_blocks: false,
       },
     },
-    sequence: ["block.upi"],
-    preferences: {
-      show_default_blocks: false,
+  },
+
+  handler: async function (response) {
+    await verifyPayment({
+      orderId: data.order.id,
+      razorpayOrderId: response.razorpay_order_id,
+      razorpayPaymentId: response.razorpay_payment_id,
+      razorpaySignature: response.razorpay_signature,
+    });
+
+    navigate("/checkout-success");
+  },
+
+  modal: {
+    ondismiss: function () {
+      setPaying(false);
     },
   },
-},
-        handler: async function (response) {
-          await verifyPayment({
-            orderId: data.order.id,
-            razorpayOrderId: response.razorpay_order_id,
-            razorpayPaymentId: response.razorpay_payment_id,
-            razorpaySignature: response.razorpay_signature,
-          });
 
-          navigate("/checkout-success");
-        },
-        prefill: {
-          email: user.email,
-        },
-        theme: {
-          color: "#16a34a",
-        },
-      };
+  theme: {
+    color: "#16a34a",
+  },
+};
 
       const razorpay = new window.Razorpay(options);
       razorpay.open();
