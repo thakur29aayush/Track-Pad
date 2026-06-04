@@ -97,12 +97,25 @@ const ProductDetails = () => {
         name: "GreenVault",
         description: product.title,
         order_id: data.razorpayOrder.id,
-        method: {
-          upi: true,
-          card: false,
-          netbanking: false,
-          wallet: false,
-        },
+       config: {
+  display: {
+    blocks: {
+      upi: {
+        name: "Pay using UPI",
+        instruments: [
+          {
+            method: "upi",
+            flow: "collect",
+          },
+        ],
+      },
+    },
+    sequence: ["block.upi"],
+    preferences: {
+      show_default_blocks: false,
+    },
+  },
+},
         handler: async function (response) {
           await verifyPayment({
             orderId: data.order.id,
