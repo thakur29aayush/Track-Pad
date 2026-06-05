@@ -23,7 +23,7 @@ const Footer = () => {
 
     brand: {
       flex: 1,
-      minWidth: "250px",
+      minWidth: "280px",
     },
 
     title: {
@@ -38,6 +38,19 @@ const Footer = () => {
       color: "var(--muted)",
       lineHeight: 1.6,
       maxWidth: "500px",
+    },
+
+    support: {
+      marginTop: "0.8rem",
+      color: "var(--muted)",
+      fontSize: "0.9rem",
+      lineHeight: 1.6,
+    },
+
+    supportLink: {
+      color: "var(--primary)",
+      textDecoration: "none",
+      fontWeight: 700,
     },
 
     socials: {
@@ -71,6 +84,18 @@ const Footer = () => {
     },
   };
 
+  const handleMouseEnter = (e) => {
+    e.currentTarget.style.background = "var(--primary)";
+    e.currentTarget.style.color = "#fff";
+    e.currentTarget.style.transform = "translateY(-2px)";
+  };
+
+  const handleMouseLeave = (e) => {
+    e.currentTarget.style.background = "var(--primary-soft)";
+    e.currentTarget.style.color = "var(--primary)";
+    e.currentTarget.style.transform = "translateY(0)";
+  };
+
   return (
     <footer style={styles.footer}>
       <div style={styles.container}>
@@ -78,8 +103,19 @@ const Footer = () => {
           <h3 style={styles.title}>TrackPad</h3>
 
           <p style={styles.description}>
-            Smart digital products, study resources, and productivity tools
-            designed to help you learn faster and achieve more.
+            Smart digital products, study resources, productivity tools,
+            planners, templates, and resources designed to help you learn
+            faster, stay organized, and achieve more.
+          </p>
+
+          <p style={styles.support}>
+            Need help or support? Contact us at{" "}
+            <a
+              href="mailto:trackkpad@gmail.com"
+              style={styles.supportLink}
+            >
+              trackkpad@gmail.com
+            </a>
           </p>
         </div>
 
@@ -89,14 +125,9 @@ const Footer = () => {
             target="_blank"
             rel="noopener noreferrer"
             style={styles.icon}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "var(--primary)";
-              e.currentTarget.style.color = "#fff";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "var(--primary-soft)";
-              e.currentTarget.style.color = "var(--primary)";
-            }}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            aria-label="Instagram"
           >
             <FaInstagram />
           </a>
@@ -106,29 +137,19 @@ const Footer = () => {
             target="_blank"
             rel="noopener noreferrer"
             style={styles.icon}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "var(--primary)";
-              e.currentTarget.style.color = "#fff";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "var(--primary-soft)";
-              e.currentTarget.style.color = "var(--primary)";
-            }}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            aria-label="YouTube"
           >
             <FaYoutube />
           </a>
 
           <a
-            href="https://mail.google.com/mail/?view=cm&fs=1&to=trackpad@gmail.com"
+            href="mailto:trackkpad@gmail.com"
             style={styles.icon}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "var(--primary)";
-              e.currentTarget.style.color = "#fff";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "var(--primary-soft)";
-              e.currentTarget.style.color = "var(--primary)";
-            }}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            aria-label="Email"
           >
             <FaEnvelope />
           </a>
