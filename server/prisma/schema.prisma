@@ -45,6 +45,7 @@ model User {
   id          String   @id @default(cuid())
   name        String?
   email       String   @unique
+  phone       String?
   role        Role     @default(USER)
   isVerified  Boolean  @default(false)
   createdAt   DateTime @default(now())

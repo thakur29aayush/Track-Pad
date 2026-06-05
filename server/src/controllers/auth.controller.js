@@ -3,6 +3,8 @@ const { createAndSendOtp, verifyOtp } = require("../services/otp.service");
 const { signToken } = require("../utils/jwt");
 
 const sendOtpSchema = z.object({
+  name: z.string().min(2),
+  phone: z.string().min(7),
   email: z.string().email(),
 });
 
@@ -13,10 +15,13 @@ const verifyOtpSchema = z.object({
 
 async function sendOtp(req, res, next) {
   try {
-    const { email } = sendOtpSchema.parse(req.body);
-    const normalizedEmail = email.trim().toLowerCase();
+    const data = sendOtpSchema.parse(req.body);
 
-    const result = await createAndSendOtp(normalizedEmail);
+    const result = await createAndSendOtp({
+      name: data.name.trim(),
+      phone: data.phone.trim(),
+      email: data.email.trim().toLowerCase(),
+    });
 
     res.json({
       message: result.message,
@@ -42,6 +47,7 @@ async function verifyOtpController(req, res, next) {
         id: user.id,
         email: user.email,
         name: user.name,
+        phone: user.phone,
         role: user.role,
       },
     });
@@ -56,6 +62,7 @@ async function me(req, res) {
       id: req.user.id,
       email: req.user.email,
       name: req.user.name,
+      phone: req.user.phone,
       role: req.user.role,
     },
   });

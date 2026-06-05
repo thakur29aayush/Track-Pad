@@ -1,21 +1,34 @@
 import { useState } from "react";
-import { ArrowRight, Mail } from "lucide-react";
+import { ArrowRight, Mail, Phone, User } from "lucide-react";
 import Button from "../common/Button";
 import { sendOtp } from "../../services/authApi";
 
 const LoginForm = ({ onOtpSent }) => {
-  const [email, setEmail] = useState("");
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    email: "",
+  });
+
   const [status, setStatus] = useState("");
   const [statusType, setStatusType] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const update = (field, value) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const cleanEmail = email.trim().toLowerCase();
+    const payload = {
+      name: form.name.trim(),
+      phone: form.phone.trim(),
+      email: form.email.trim().toLowerCase(),
+    };
 
-    if (!cleanEmail) {
-      setStatus("Please enter your email address.");
+    if (!payload.name || !payload.phone || !payload.email) {
+      setStatus("Please enter your name, phone number, and email.");
       setStatusType("error");
       return;
     }
@@ -25,11 +38,11 @@ const LoginForm = ({ onOtpSent }) => {
     setStatusType("");
 
     try {
-      const data = await sendOtp(cleanEmail);
+      const data = await sendOtp(payload);
 
       setStatus(data.message || "OTP sent successfully.");
       setStatusType(data.emailSent === false ? "warning" : "success");
-      onOtpSent(cleanEmail);
+      onOtpSent(payload.email);
     } catch (error) {
       setStatus(error.response?.data?.message || "Failed to send OTP.");
       setStatusType("error");
@@ -46,19 +59,48 @@ const LoginForm = ({ onOtpSent }) => {
 
       <div className="auth-heading">
         <h2>Welcome back</h2>
-        <p>Enter your email and we’ll send a one-time login code.</p>
+        <p>Enter your details and we’ll send a one-time login code.</p>
       </div>
 
       <label className="auth-field">
-        <span>Email address</span>
+        <span>Full name</span>
+        <div className="auth-input-wrap">
+          <User size={16} />
+          <input
+            type="text"
+            required
+            value={form.name}
+            onChange={(e) => update("name", e.target.value)}
+            placeholder="Your name"
+            autoComplete="name"
+          />
+        </div>
+      </label>
 
+      <label className="auth-field">
+        <span>Phone number</span>
+        <div className="auth-input-wrap">
+          <Phone size={16} />
+          <input
+            type="tel"
+            required
+            value={form.phone}
+            onChange={(e) => update("phone", e.target.value)}
+            placeholder="98XXXXXXXX"
+            autoComplete="tel"
+          />
+        </div>
+      </label>
+
+      <label className="auth-field">
+        <span>Email address</span>
         <div className="auth-input-wrap">
           <Mail size={16} />
           <input
             type="email"
             required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={form.email}
+            onChange={(e) => update("email", e.target.value)}
             placeholder="you@example.com"
             autoComplete="email"
           />
@@ -77,9 +119,7 @@ const LoginForm = ({ onOtpSent }) => {
         )}
       </Button>
 
-      <p className="auth-note">
-        No password needed. Finally, one less thing to forget.
-      </p>
+      <p className="auth-note">No password needed. Finally, one less thing to forget.</p>
 
       <style>{`
         .auth-card {
@@ -118,7 +158,7 @@ const LoginForm = ({ onOtpSent }) => {
 
         .auth-field {
           display: block;
-          margin-top: 20px;
+          margin-top: 16px;
         }
 
         .auth-field span {
@@ -139,7 +179,6 @@ const LoginForm = ({ onOtpSent }) => {
           background: var(--bg);
           border: 1px solid var(--border);
           color: #16a34a;
-          transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         .auth-input-wrap:focus-within {
@@ -157,17 +196,12 @@ const LoginForm = ({ onOtpSent }) => {
           font-weight: 700;
         }
 
-        .auth-input-wrap input::placeholder {
-          color: var(--muted);
-        }
-
         .auth-status {
           margin: 13px 0 0;
           padding: 10px 12px;
           border-radius: 12px;
           font-size: 0.84rem;
           font-weight: 700;
-          line-height: 1.45;
         }
 
         .auth-status.success {
@@ -193,30 +227,13 @@ const LoginForm = ({ onOtpSent }) => {
           justify-content: center;
           gap: 7px;
           padding: 12px 18px;
-          font-size: 0.92rem;
         }
 
         .auth-note {
           margin: 13px 0 0;
           color: var(--muted);
           font-size: 0.8rem;
-          line-height: 1.5;
           text-align: center;
-        }
-
-        @media (max-width: 520px) {
-          .auth-card {
-            padding: 20px;
-            border-radius: 20px;
-          }
-
-          .auth-heading h2 {
-            font-size: 1.4rem;
-          }
-
-          .auth-input-wrap {
-            height: 46px;
-          }
         }
       `}</style>
     </form>

@@ -5,17 +5,24 @@ const { sendOtpEmail } = require("./email.service");
 
 const normalizeEmail = (email) => String(email).toLowerCase().trim();
 
-async function createAndSendOtp(email) {
-  const normalizedEmail = normalizeEmail(email);
+async function createAndSendOtp(payload) {
+  const normalizedEmail = normalizeEmail(payload.email);
+  const name = payload.name?.trim();
+  const phone = payload.phone?.trim();
 
   const otp = generateOtp();
   const codeHash = await hashOtp(otp);
 
   const user = await prisma.user.upsert({
     where: { email: normalizedEmail },
-    update: {},
+    update: {
+      name,
+      phone,
+    },
     create: {
       email: normalizedEmail,
+      name,
+      phone,
       isVerified: false,
     },
   });
