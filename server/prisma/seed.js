@@ -3,7 +3,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 async function main() {
-  const adminEmail = "thakur29aayush@gmail.com";
+  const adminEmail = "trackkpad@gmail.com";
 
   await prisma.user.upsert({
     where: { email: adminEmail },
