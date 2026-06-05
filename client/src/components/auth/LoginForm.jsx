@@ -4,6 +4,8 @@ import Button from "../common/Button";
 import { sendOtp } from "../../services/authApi";
 
 const LoginForm = ({ onOtpSent }) => {
+  const [mode, setMode] = useState("login");
+
   const [form, setForm] = useState({
     name: "",
     phone: "",
@@ -22,12 +24,22 @@ const LoginForm = ({ onOtpSent }) => {
     e.preventDefault();
 
     const payload = {
-      name: form.name.trim(),
-      phone: form.phone.trim(),
+      mode,
       email: form.email.trim().toLowerCase(),
     };
 
-    if (!payload.name || !payload.phone || !payload.email) {
+    if (mode === "signup") {
+      payload.name = form.name.trim();
+      payload.phone = form.phone.trim();
+    }
+
+    if (!payload.email) {
+      setStatus("Please enter your email address.");
+      setStatusType("error");
+      return;
+    }
+
+    if (mode === "signup" && (!payload.name || !payload.phone)) {
       setStatus("Please enter your name, phone number, and email.");
       setStatusType("error");
       return;
@@ -58,39 +70,63 @@ const LoginForm = ({ onOtpSent }) => {
       </div>
 
       <div className="auth-heading">
-        <h2>Welcome back</h2>
-        <p>Enter your details and we’ll send a one-time login code.</p>
+        <h2>{mode === "login" ? "Welcome back" : "Create account"}</h2>
+        <p>
+          {mode === "login"
+            ? "Login with your email and we’ll send a one-time code."
+            : "Enter your details and we’ll send a one-time login code."}
+        </p>
       </div>
 
-      <label className="auth-field">
-        <span>Full name</span>
-        <div className="auth-input-wrap">
-          <User size={16} />
-          <input
-            type="text"
-            required
-            value={form.name}
-            onChange={(e) => update("name", e.target.value)}
-            placeholder="Your name"
-            autoComplete="name"
-          />
-        </div>
-      </label>
+      <div className="auth-tabs">
+        <button
+          type="button"
+          className={mode === "login" ? "active" : ""}
+          onClick={() => setMode("login")}
+        >
+          Login
+        </button>
 
-      <label className="auth-field">
-        <span>Phone number</span>
-        <div className="auth-input-wrap">
-          <Phone size={16} />
-          <input
-            type="tel"
-            required
-            value={form.phone}
-            onChange={(e) => update("phone", e.target.value)}
-            placeholder="98XXXXXXXX"
-            autoComplete="tel"
-          />
-        </div>
-      </label>
+        <button
+          type="button"
+          className={mode === "signup" ? "active" : ""}
+          onClick={() => setMode("signup")}
+        >
+          Sign up
+        </button>
+      </div>
+
+      {mode === "signup" && (
+        <>
+          <label className="auth-field">
+            <span>Full name</span>
+            <div className="auth-input-wrap">
+              <User size={16} />
+              <input
+                type="text"
+                value={form.name}
+                onChange={(e) => update("name", e.target.value)}
+                placeholder="Your name"
+                autoComplete="name"
+              />
+            </div>
+          </label>
+
+          <label className="auth-field">
+            <span>Phone number</span>
+            <div className="auth-input-wrap">
+              <Phone size={16} />
+              <input
+                type="tel"
+                value={form.phone}
+                onChange={(e) => update("phone", e.target.value)}
+                placeholder="98XXXXXXXX"
+                autoComplete="tel"
+              />
+            </div>
+          </label>
+        </>
+      )}
 
       <label className="auth-field">
         <span>Email address</span>
@@ -119,7 +155,11 @@ const LoginForm = ({ onOtpSent }) => {
         )}
       </Button>
 
-      <p className="auth-note">No password needed. Finally, one less thing to forget.</p>
+      <p className="auth-note">
+        {mode === "login"
+          ? "Only email is required for existing users."
+          : "Create once, then login with only your email next time."}
+      </p>
 
       <style>{`
         .auth-card {
@@ -154,6 +194,32 @@ const LoginForm = ({ onOtpSent }) => {
           color: var(--muted);
           font-size: 0.92rem;
           line-height: 1.55;
+        }
+
+        .auth-tabs {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 8px;
+          margin-top: 18px;
+          padding: 5px;
+          border-radius: 14px;
+          background: var(--bg);
+          border: 1px solid var(--border);
+        }
+
+        .auth-tabs button {
+          border: 0;
+          border-radius: 10px;
+          padding: 10px;
+          background: transparent;
+          color: var(--muted);
+          cursor: pointer;
+          font-weight: 900;
+        }
+
+        .auth-tabs button.active {
+          background: rgba(22, 163, 74, 0.14);
+          color: #16a34a;
         }
 
         .auth-field {

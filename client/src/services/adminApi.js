@@ -15,6 +15,21 @@ export const getAdminUsers = async () => {
   return res.data.users;
 };
 
+export const updateUser = async (id, payload) => {
+  const res = await api.put(`/admin/users/${id}`, payload);
+  return res.data.user;
+};
+
+export const suspendUser = async (id) => {
+  const res = await api.patch(`/admin/users/${id}/suspend`);
+  return res.data.user;
+};
+
+export const unsuspendUser = async (id) => {
+  const res = await api.patch(`/admin/users/${id}/unsuspend`);
+  return res.data.user;
+};
+
 export const deleteUser = async (id) => {
   const res = await api.delete(`/admin/users/${id}`);
   return res.data;

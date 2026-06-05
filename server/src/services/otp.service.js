@@ -7,18 +7,31 @@ const normalizeEmail = (email) => String(email).toLowerCase().trim();
 
 async function createAndSendOtp(payload) {
   const normalizedEmail = normalizeEmail(payload.email);
+  const mode = payload.mode || "login";
   const name = payload.name?.trim();
   const phone = payload.phone?.trim();
 
-  const otp = generateOtp();
-  const codeHash = await hashOtp(otp);
+  const existingUser = await prisma.user.findUnique({
+    where: { email: normalizedEmail },
+  });
+
+  if (mode === "login" && !existingUser) {
+    throw new Error("No account found with this email. Please sign up first.");
+  }
+
+  if (mode === "signup" && (!name || !phone)) {
+    throw new Error("Name and phone number are required for signup.");
+  }
 
   const user = await prisma.user.upsert({
     where: { email: normalizedEmail },
-    update: {
-      name,
-      phone,
-    },
+    update:
+      mode === "signup"
+        ? {
+            name,
+            phone,
+          }
+        : {},
     create: {
       email: normalizedEmail,
       name,
@@ -26,6 +39,13 @@ async function createAndSendOtp(payload) {
       isVerified: false,
     },
   });
+
+  if (user.isSuspended) {
+    throw new Error("Your account has been suspended. Contact support.");
+  }
+
+  const otp = generateOtp();
+  const codeHash = await hashOtp(otp);
 
   await prisma.otp.updateMany({
     where: {
@@ -117,6 +137,10 @@ async function verifyOtp(email, code) {
     where: { email: normalizedEmail },
     data: { isVerified: true },
   });
+
+  if (user.isSuspended) {
+    throw new Error("Your account has been suspended. Contact support.");
+  }
 
   await prisma.otp.update({
     where: { id: otpRecord.id },

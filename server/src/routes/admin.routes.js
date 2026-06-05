@@ -6,6 +6,9 @@ const { upload } = require("../middleware/upload");
 
 const {
   getAdminUsers,
+  updateAdminUser,
+  suspendAdminUser,
+  unsuspendAdminUser,
   deleteAdminUser,
 } = require("../controllers/adminUser.controller");
 
@@ -34,6 +37,9 @@ router.get("/stats", getAdminStats);
 router.get("/orders", getAdminOrders);
 
 router.get("/users", getAdminUsers);
+router.put("/users/:id", updateAdminUser);
+router.patch("/users/:id/suspend", suspendAdminUser);
+router.patch("/users/:id/unsuspend", unsuspendAdminUser);
 router.delete("/users/:id", deleteAdminUser);
 
 router.post("/products", upload.single("thumbnail"), createProduct);

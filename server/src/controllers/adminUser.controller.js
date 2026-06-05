@@ -134,6 +134,81 @@ async function getAdminUsers(req, res, next) {
   }
 }
 
+async function updateAdminUser(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    const {
+      name,
+      email,
+      phone,
+      role,
+      isVerified,
+    } = req.body;
+
+    const user = await prisma.user.update({
+      where: { id },
+      data: {
+        ...(name !== undefined && { name }),
+        ...(email !== undefined && {
+          email: email.trim().toLowerCase(),
+        }),
+        ...(phone !== undefined && { phone }),
+        ...(role !== undefined && { role }),
+        ...(isVerified !== undefined && { isVerified }),
+      },
+    });
+
+    res.json({ user });
+  } catch (error) {
+    next(error);
+  }
+}
+async function suspendAdminUser(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    if (req.user.id === id) {
+      return res.status(400).json({
+        message: "You cannot suspend yourself.",
+      });
+    }
+
+    const user = await prisma.user.update({
+      where: { id },
+      data: {
+        isSuspended: true,
+      },
+    });
+
+    res.json({
+      message: "User suspended.",
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+async function unsuspendAdminUser(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    const user = await prisma.user.update({
+      where: { id },
+      data: {
+        isSuspended: false,
+      },
+    });
+
+    res.json({
+      message: "User unsuspended.",
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function deleteAdminUser(req, res, next) {
   try {
     const { id } = req.params;
@@ -168,5 +243,8 @@ async function deleteAdminUser(req, res, next) {
 
 module.exports = {
   getAdminUsers,
+  updateAdminUser,
+  suspendAdminUser,
+  unsuspendAdminUser,
   deleteAdminUser,
 };

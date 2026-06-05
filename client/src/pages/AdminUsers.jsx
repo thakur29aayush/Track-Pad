@@ -8,20 +8,40 @@ import {
   Trash2,
   User,
   Users,
+  Edit3,
+  Ban,
+  CheckCircle2,
+  X,
+  Save,
 } from "lucide-react";
-import { deleteUser, getAdminUsers } from "../services/adminApi";
+import {
+  deleteUser,
+  getAdminUsers,
+  suspendUser,
+  unsuspendUser,
+  updateUser,
+} from "../services/adminApi";
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
   const [status, setStatus] = useState("Loading users...");
   const [search, setSearch] = useState("");
   const [deletingId, setDeletingId] = useState("");
+  const [savingId, setSavingId] = useState("");
+  const [editingUser, setEditingUser] = useState(null);
+
+  const [editForm, setEditForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    role: "USER",
+    isVerified: false,
+  });
 
   const loadUsers = async () => {
     try {
       setStatus("Loading users...");
       const data = await getAdminUsers();
-
       setUsers(data.users || data || []);
       setStatus("");
     } catch (error) {
@@ -61,6 +81,116 @@ const AdminUsers = () => {
     });
   }, [users, search]);
 
+  const startEdit = (user) => {
+    setEditingUser(user);
+    setEditForm({
+      name: user.name || "",
+      email: user.email || "",
+      phone: user.phone || "",
+      role: user.role || "USER",
+      isVerified: Boolean(user.isVerified),
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingUser(null);
+    setEditForm({
+      name: "",
+      email: "",
+      phone: "",
+      role: "USER",
+      isVerified: false,
+    });
+  };
+
+  const updateEditForm = (field, value) => {
+    setEditForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleSave = async () => {
+    if (!editingUser) return;
+
+    try {
+      setSavingId(editingUser.id);
+
+      const updated = await updateUser(editingUser.id, {
+        name: editForm.name.trim(),
+        email: editForm.email.trim().toLowerCase(),
+        phone: editForm.phone.trim(),
+        role: editForm.role,
+        isVerified: editForm.isVerified,
+      });
+
+      setUsers((prev) =>
+        prev.map((user) =>
+          user.id === editingUser.id
+            ? {
+                ...user,
+                ...updated,
+                counts: user.counts,
+                totalPurchases: user.totalPurchases,
+                totalSpent: user.totalSpent,
+                productsBought: user.productsBought,
+                orders: user.orders,
+                bookings: user.bookings,
+              }
+            : user
+        )
+      );
+
+      setStatus("User updated successfully.");
+      cancelEdit();
+    } catch (error) {
+      console.error(error);
+      setStatus(error.response?.data?.message || "Failed to update user.");
+    } finally {
+      setSavingId("");
+    }
+  };
+
+  const handleSuspend = async (user) => {
+    try {
+      const res = await suspendUser(user.id);
+      const updated = res.user || res;
+
+      setUsers((prev) =>
+        prev.map((item) =>
+          item.id === user.id
+            ? { ...item, ...updated, isSuspended: true }
+            : item
+        )
+      );
+
+      setStatus("User suspended successfully.");
+    } catch (error) {
+      console.error(error);
+      setStatus(error.response?.data?.message || "Failed to suspend user.");
+    }
+  };
+
+  const handleUnsuspend = async (user) => {
+    try {
+      const res = await unsuspendUser(user.id);
+      const updated = res.user || res;
+
+      setUsers((prev) =>
+        prev.map((item) =>
+          item.id === user.id
+            ? { ...item, ...updated, isSuspended: false }
+            : item
+        )
+      );
+
+      setStatus("User unsuspended successfully.");
+    } catch (error) {
+      console.error(error);
+      setStatus(error.response?.data?.message || "Failed to unsuspend user.");
+    }
+  };
+
   const handleDelete = async (user) => {
     const confirmed = window.confirm(
       `Delete ${user.email || "this user"}?\n\nThis will remove the user's account and related details. This action cannot be undone.`
@@ -95,8 +225,8 @@ const AdminUsers = () => {
           </h1>
 
           <p>
-            View registered users, contact details, roles, purchases, orders,
-            and remove accounts when needed.
+            Edit user details, suspend accounts, view purchases and orders, or
+            delete accounts when needed.
           </p>
         </div>
 
@@ -124,6 +254,89 @@ const AdminUsers = () => {
 
       {status && <p className="admin-status">{status}</p>}
 
+      {editingUser && (
+        <div className="edit-panel">
+          <div className="edit-panel-header">
+            <div>
+              <h3>Edit User</h3>
+              <p>Orders and purchases are read-only. Because money records should not be casually poked with a stick.</p>
+            </div>
+
+            <button type="button" className="close-edit-btn" onClick={cancelEdit}>
+              <X size={16} />
+            </button>
+          </div>
+
+          <div className="edit-grid">
+            <label>
+              <span>Name</span>
+              <input
+                value={editForm.name}
+                onChange={(e) => updateEditForm("name", e.target.value)}
+                placeholder="User name"
+              />
+            </label>
+
+            <label>
+              <span>Email</span>
+              <input
+                type="email"
+                value={editForm.email}
+                onChange={(e) => updateEditForm("email", e.target.value)}
+                placeholder="email@example.com"
+              />
+            </label>
+
+            <label>
+              <span>Phone</span>
+              <input
+                value={editForm.phone}
+                onChange={(e) => updateEditForm("phone", e.target.value)}
+                placeholder="Phone number"
+              />
+            </label>
+
+            <label>
+              <span>Role</span>
+              <select
+                value={editForm.role}
+                onChange={(e) => updateEditForm("role", e.target.value)}
+              >
+                <option value="USER">USER</option>
+                <option value="ADMIN">ADMIN</option>
+              </select>
+            </label>
+
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={editForm.isVerified}
+                onChange={(e) =>
+                  updateEditForm("isVerified", e.target.checked)
+                }
+              />
+              <span>Verified user</span>
+            </label>
+          </div>
+
+          <div className="edit-actions">
+            <button type="button" className="cancel-btn" onClick={cancelEdit}>
+              Cancel
+            </button>
+
+            <button
+              type="button"
+              className="save-btn"
+              disabled={savingId === editingUser.id}
+              onClick={handleSave}
+            >
+              <Save size={14} />
+              {savingId === editingUser.id ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="users-table-wrap">
         <table className="users-table">
           <thead>
@@ -132,6 +345,7 @@ const AdminUsers = () => {
               <th>Email</th>
               <th>Phone</th>
               <th>Role</th>
+              <th>Status</th>
               <th>Purchases</th>
               <th>Orders</th>
               <th>Joined</th>
@@ -143,11 +357,13 @@ const AdminUsers = () => {
             {filteredUsers.length > 0 ? (
               filteredUsers.map((user) => {
                 const emailKey = user.email?.toLowerCase();
-                const isDuplicate =
-                  emailKey && duplicateEmails[emailKey] > 1;
+                const isDuplicate = emailKey && duplicateEmails[emailKey] > 1;
 
                 return (
-                  <tr key={user.id} className={isDuplicate ? "duplicate-row" : ""}>
+                  <tr
+                    key={user.id}
+                    className={isDuplicate ? "duplicate-row" : ""}
+                  >
                     <td>
                       <div className="user-cell">
                         <div className="avatar">
@@ -188,10 +404,16 @@ const AdminUsers = () => {
                     </td>
 
                     <td>
-                      {user._count?.purchases ?? user.purchases?.length ?? 0}
+                      {user.isSuspended ? (
+                        <span className="suspended-badge">Suspended</span>
+                      ) : (
+                        <span className="active-badge">Active</span>
+                      )}
                     </td>
 
-                    <td>{user._count?.orders ?? user.orders?.length ?? 0}</td>
+                    <td>{user.counts?.purchases ?? user.totalPurchases ?? 0}</td>
+
+                    <td>{user.counts?.orders ?? user.orders?.length ?? 0}</td>
 
                     <td>
                       {user.createdAt
@@ -200,22 +422,53 @@ const AdminUsers = () => {
                     </td>
 
                     <td>
-                      <button
-                        type="button"
-                        className="delete-user-btn"
-                        disabled={deletingId === user.id}
-                        onClick={() => handleDelete(user)}
-                      >
-                        <Trash2 size={14} />
-                        {deletingId === user.id ? "Deleting..." : "Delete"}
-                      </button>
+                      <div className="action-group">
+                        <button
+                          type="button"
+                          className="edit-btn"
+                          onClick={() => startEdit(user)}
+                        >
+                          <Edit3 size={13} />
+                          Edit
+                        </button>
+
+                        {user.isSuspended ? (
+                          <button
+                            type="button"
+                            className="unsuspend-btn"
+                            onClick={() => handleUnsuspend(user)}
+                          >
+                            <CheckCircle2 size={13} />
+                            Unsuspend
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            className="suspend-btn"
+                            onClick={() => handleSuspend(user)}
+                          >
+                            <Ban size={13} />
+                            Suspend
+                          </button>
+                        )}
+
+                        <button
+                          type="button"
+                          className="delete-user-btn"
+                          disabled={deletingId === user.id}
+                          onClick={() => handleDelete(user)}
+                        >
+                          <Trash2 size={13} />
+                          {deletingId === user.id ? "Deleting..." : "Delete"}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
               })
             ) : (
               <tr>
-                <td colSpan="8" className="empty-cell">
+                <td colSpan="9" className="empty-cell">
                   No users found.
                 </td>
               </tr>
@@ -348,6 +601,121 @@ const AdminUsers = () => {
           font-size: 0.84rem;
         }
 
+        .edit-panel {
+          margin-bottom: 14px;
+          padding: 18px;
+          border-radius: 20px;
+          background: var(--card);
+          border: 1px solid var(--border);
+          box-shadow: var(--shadow);
+        }
+
+        .edit-panel-header {
+          display: flex;
+          justify-content: space-between;
+          gap: 12px;
+          margin-bottom: 14px;
+        }
+
+        .edit-panel-header h3 {
+          margin: 0;
+          color: var(--text);
+          font-size: 1.08rem;
+        }
+
+        .edit-panel-header p {
+          margin: 5px 0 0;
+          color: var(--muted);
+          font-size: 0.82rem;
+          line-height: 1.5;
+        }
+
+        .close-edit-btn {
+          width: 34px;
+          height: 34px;
+          border-radius: 50%;
+          border: 1px solid var(--border);
+          background: var(--bg);
+          color: var(--text);
+          cursor: pointer;
+        }
+
+        .edit-grid {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 12px;
+        }
+
+        .edit-grid label {
+          display: grid;
+          gap: 6px;
+        }
+
+        .edit-grid label span {
+          color: var(--text);
+          font-size: 0.76rem;
+          font-weight: 900;
+        }
+
+        .edit-grid input,
+        .edit-grid select {
+          min-height: 42px;
+          border: 1px solid var(--border);
+          border-radius: 12px;
+          background: var(--bg);
+          color: var(--text);
+          padding: 8px 10px;
+          outline: none;
+          font-weight: 700;
+        }
+
+        .checkbox-label {
+          display: flex !important;
+          align-items: center;
+          gap: 9px !important;
+        }
+
+        .checkbox-label input {
+          width: 16px;
+          height: 16px;
+          min-height: auto;
+        }
+
+        .edit-actions {
+          display: flex;
+          justify-content: flex-end;
+          gap: 8px;
+          margin-top: 14px;
+        }
+
+        .cancel-btn,
+        .save-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          border: 0;
+          padding: 9px 12px;
+          border-radius: 11px;
+          cursor: pointer;
+          font-weight: 900;
+        }
+
+        .cancel-btn {
+          background: var(--bg);
+          color: var(--muted);
+          border: 1px solid var(--border);
+        }
+
+        .save-btn {
+          background: #16a34a;
+          color: #fff;
+        }
+
+        .save-btn:disabled {
+          opacity: 0.55;
+          cursor: not-allowed;
+        }
+
         .users-table-wrap {
           overflow-x: auto;
           border-radius: 20px;
@@ -359,7 +727,7 @@ const AdminUsers = () => {
         .users-table {
           width: 100%;
           border-collapse: collapse;
-          min-width: 1080px;
+          min-width: 1250px;
         }
 
         .users-table th,
@@ -439,7 +807,9 @@ const AdminUsers = () => {
           color: var(--muted);
         }
 
-        .role-badge {
+        .role-badge,
+        .active-badge,
+        .suspended-badge {
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -448,36 +818,73 @@ const AdminUsers = () => {
           font-size: 0.7rem;
           font-weight: 950;
           text-transform: uppercase;
+        }
+
+        .role-badge {
           background: rgba(22,163,74,0.12);
           color: #16a34a;
           border: 1px solid rgba(22,163,74,0.18);
         }
 
+        .role-badge.ADMIN,
         .role-badge.admin {
           background: rgba(214,179,0,0.14);
           color: #b89400;
           border-color: rgba(214,179,0,0.24);
         }
 
+        .active-badge {
+          background: rgba(22,163,74,0.12);
+          color: #16a34a;
+          border: 1px solid rgba(22,163,74,0.18);
+        }
+
+        .suspended-badge {
+          background: rgba(239,68,68,0.12);
+          color: #ef4444;
+          border: 1px solid rgba(239,68,68,0.2);
+        }
+
+        .action-group {
+          display: flex;
+          gap: 6px;
+          flex-wrap: wrap;
+        }
+
+        .edit-btn,
+        .suspend-btn,
+        .unsuspend-btn,
         .delete-user-btn {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          gap: 6px;
+          gap: 5px;
           border: 0;
           padding: 8px 10px;
           border-radius: 11px;
-          background: rgba(239,68,68,0.12);
-          color: #ef4444;
           cursor: pointer;
-          font-size: 0.76rem;
+          font-size: 0.74rem;
           font-weight: 900;
-          transition: transform 0.18s ease, background 0.18s ease;
         }
 
-        .delete-user-btn:hover:not(:disabled) {
-          transform: translateY(-1px);
-          background: rgba(239,68,68,0.18);
+        .edit-btn {
+          background: rgba(59,130,246,0.12);
+          color: #3b82f6;
+        }
+
+        .suspend-btn {
+          background: rgba(245,158,11,0.14);
+          color: #d97706;
+        }
+
+        .unsuspend-btn {
+          background: rgba(22,163,74,0.12);
+          color: #16a34a;
+        }
+
+        .delete-user-btn {
+          background: rgba(239,68,68,0.12);
+          color: #ef4444;
         }
 
         .delete-user-btn:disabled {
@@ -501,6 +908,10 @@ const AdminUsers = () => {
           .refresh-btn {
             width: 100%;
             justify-content: center;
+          }
+
+          .edit-grid {
+            grid-template-columns: 1fr;
           }
         }
       `}</style>
