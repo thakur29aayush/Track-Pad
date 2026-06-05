@@ -30,7 +30,10 @@ const OtpVerifyForm = ({ email, onBack }) => {
     setStatus("");
 
     try {
-      const data = await verifyOtp(email, otp);
+      const data = await verifyOtp({
+       email,
+       otp,
+      });
       login(data.token, data.user);
       navigate("/products");
     } catch (error) {
