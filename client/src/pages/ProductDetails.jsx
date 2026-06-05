@@ -15,6 +15,14 @@ import { getProductBySlug } from "../services/productApi";
 import { createPaymentOrder, verifyPayment } from "../services/paymentApi";
 import { useAuth } from "../context/AuthContext";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+const getImageUrl = (thumbnail) => {
+  if (!thumbnail) return null;
+  if (thumbnail.startsWith("http")) return thumbnail;
+  return `${API_URL}${thumbnail}`;
+};
+
 const ProductDetails = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -37,6 +45,10 @@ const ProductDetails = () => {
 
     load();
   }, [slug]);
+
+  const imageUrl = getImageUrl(product?.thumbnail);
+  const price = Number(product?.price || 0);
+  const oldPrice = Math.round(price * 1.5);
 
   const productType = useMemo(() => {
     return product?.type ? product.type.replaceAll("_", " ") : "";
@@ -91,43 +103,43 @@ const ProductDetails = () => {
       const data = await createPaymentOrder([product.id]);
 
       const options = {
-  key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-  amount: data.razorpayOrder.amount,
-  currency: data.razorpayOrder.currency,
-  name: "GreenVault",
-  description: product.title,
-  order_id: data.razorpayOrder.id,
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: data.razorpayOrder.amount,
+        currency: data.razorpayOrder.currency,
+        name: "TrackPad",
+        description: product.title,
+        order_id: data.razorpayOrder.id,
 
-  method: {
-    upi: true,
-  },
+        method: {
+          upi: true,
+        },
 
-  handler: async function (response) {
-    await verifyPayment({
-      orderId: data.order.id,
-      razorpayOrderId: response.razorpay_order_id,
-      razorpayPaymentId: response.razorpay_payment_id,
-      razorpaySignature: response.razorpay_signature,
-    });
+        handler: async function (response) {
+          await verifyPayment({
+            orderId: data.order.id,
+            razorpayOrderId: response.razorpay_order_id,
+            razorpayPaymentId: response.razorpay_payment_id,
+            razorpaySignature: response.razorpay_signature,
+          });
 
-    navigate("/checkout-success");
-  },
+          navigate("/checkout-success");
+        },
 
-  modal: {
-    ondismiss: function () {
-      setPaying(false);
-    },
-  },
+        modal: {
+          ondismiss: function () {
+            setPaying(false);
+          },
+        },
 
-  prefill: {
-    email: user.email,
-    contact: "9999999999",
-  },
+        prefill: {
+          email: user.email,
+          contact: user.phone || "9999999999",
+        },
 
-  theme: {
-    color: "#16a34a",
-  },
-};
+        theme: {
+          color: "#16a34a",
+        },
+      };
 
       const razorpay = new window.Razorpay(options);
       razorpay.open();
@@ -165,8 +177,8 @@ const ProductDetails = () => {
 
       <div className="detail-shell">
         <div className="media-card">
-          {product.thumbnail ? (
-            <img src={product.thumbnail} alt={product.title} />
+          {imageUrl ? (
+            <img src={imageUrl} alt={product.title} />
           ) : (
             <div className="media-placeholder">
               <span>{product.title?.slice(0, 1)}</span>
@@ -191,7 +203,12 @@ const ProductDetails = () => {
           <div className="purchase-box">
             <div>
               <span>One-time payment</span>
-              <strong>₹{product.price}</strong>
+
+              <div className="detail-price-stack">
+                <span className="detail-old-price">₹{oldPrice}</span>
+                <strong>₹{price}</strong>
+                <span className="discount-badge">50% OFF</span>
+              </div>
             </div>
 
             <div className="delivery-box">
@@ -230,8 +247,7 @@ const ProductDetails = () => {
 
           {!user && (
             <p className="login-note">
-              Login with email OTP before payment. Because apparently even
-              buttons need identity verification now.
+              Login with email OTP before payment.
             </p>
           )}
         </article>
@@ -270,12 +286,10 @@ const ProductDetails = () => {
           text-decoration: none;
           font-size: 0.9rem;
           font-weight: 800;
-          transition: color 0.18s ease, transform 0.18s ease;
         }
 
         .back-link:hover {
           color: #16a34a;
-          transform: translateX(-2px);
         }
 
         .detail-shell {
@@ -314,7 +328,6 @@ const ProductDetails = () => {
           color: #16a34a;
           font-size: 5rem;
           font-weight: 950;
-          letter-spacing: -0.08em;
         }
 
         .info-card {
@@ -330,7 +343,6 @@ const ProductDetails = () => {
         .top-row {
           display: flex;
           justify-content: space-between;
-          align-items: center;
           gap: 12px;
           margin-bottom: 14px;
         }
@@ -344,23 +356,19 @@ const ProductDetails = () => {
           border-radius: 999px;
           font-size: 0.72rem;
           font-weight: 900;
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
         }
 
         .type-pill {
           color: #16a34a;
           background: rgba(22, 163, 74, 0.11);
           border: 1px solid rgba(22, 163, 74, 0.18);
+          text-transform: uppercase;
         }
 
         .secure-pill {
           color: var(--muted);
           background: var(--bg);
           border: 1px solid var(--border);
-          text-transform: none;
-          letter-spacing: 0;
-          font-size: 0.78rem;
         }
 
         .secure-pill svg {
@@ -372,13 +380,11 @@ const ProductDetails = () => {
           color: var(--text);
           font-size: clamp(2.1rem, 4.2vw, 3.9rem);
           line-height: 0.98;
-          letter-spacing: -0.065em;
           font-weight: 950;
         }
 
         .description {
           margin: 14px 0 20px;
-          max-width: 640px;
           color: var(--muted);
           font-size: 0.96rem;
           line-height: 1.65;
@@ -404,11 +410,36 @@ const ProductDetails = () => {
           font-weight: 800;
         }
 
-        .purchase-box strong {
+        .detail-price-stack {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
+
+        .detail-old-price {
+          color: var(--muted);
+          font-size: 1rem;
+          font-weight: 850;
+          text-decoration: line-through;
+          opacity: 0.75;
+        }
+
+        .detail-price-stack strong {
           color: #16a34a;
           font-size: 2rem;
           line-height: 1;
-          letter-spacing: -0.05em;
+          font-weight: 950;
+        }
+
+        .discount-badge {
+          padding: 5px 8px;
+          border-radius: 999px;
+          background: rgba(22, 163, 74, 0.13);
+          color: #16a34a;
+          border: 1px solid rgba(22, 163, 74, 0.2);
+          font-size: 0.68rem;
+          font-weight: 950;
         }
 
         .delivery-box {
@@ -452,7 +483,6 @@ const ProductDetails = () => {
 
         .benefits-list svg {
           color: #16a34a;
-          flex-shrink: 0;
         }
 
         .info-card .btn {
@@ -469,7 +499,6 @@ const ProductDetails = () => {
           color: var(--muted);
           text-align: center;
           font-size: 0.84rem;
-          line-height: 1.5;
           font-weight: 700;
         }
 
@@ -490,7 +519,6 @@ const ProductDetails = () => {
         .detail-extra h3 {
           margin: 0 0 8px;
           font-size: 1.05rem;
-          letter-spacing: -0.03em;
         }
 
         .detail-extra p {
@@ -522,10 +550,7 @@ const ProductDetails = () => {
             min-height: 300px;
           }
 
-          .benefits-list {
-            grid-template-columns: 1fr;
-          }
-
+          .benefits-list,
           .detail-extra {
             grid-template-columns: 1fr;
           }

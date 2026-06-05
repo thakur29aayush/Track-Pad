@@ -32,7 +32,12 @@ const ProductCard = ({ product }) => {
         <div className="product-body">
           <div className="product-meta">
             <span>{product.type?.replaceAll("_", " ")}</span>
-            <strong>₹{product.price}</strong>
+            <div className="price-stack">
+  <span className="old-price">
+  ₹{Math.round(Number(product.price) * 1.5)}
+</span>
+  <strong>₹{product.price}</strong>
+</div>
           </div>
 
           <h3>{product.title}</h3>
@@ -88,6 +93,25 @@ const ProductCard = ({ product }) => {
           display: block;
           transition: transform 0.25s ease;
         }
+          .price-stack {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.old-price {
+  color: var(--muted) !important;
+  font-size: 0.8rem !important;
+  font-weight: 800 !important;
+  text-decoration: line-through;
+  opacity: 0.75;
+}
+
+.price-stack strong {
+  color: #16a34a;
+  font-size: 1rem;
+}
 
         .product-card:hover .product-media img {
           transform: scale(1.04);
