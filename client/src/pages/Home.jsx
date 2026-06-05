@@ -67,26 +67,26 @@ const Home = () => {
 
             <div className="progress-block">
               <div className="progress-row">
-                <span>Habit Tracker</span>
+                <span>HABIT TRACKER</span>
                 <strong>99%🔥</strong>
               </div>
               <div className="progress-track">
-                <div style={{ width: "82%" }} />
+                <div style={{ width: "99%" }} />
               </div>
             </div>
 
             <div className="preview-list">
               <div>
                 <CheckCircle2 size={15} />
-                Morning routine completed
+                SELF IMPROVEMENT
               </div>
               <div>
                 <CheckCircle2 size={15} />
-                Weekly planner updated
+                HIGH MOTIVATION
               </div>
               <div>
                 <CheckCircle2 size={15} />
-                Counselling slot booked
+                30 DAYS CHALLENGE
               </div>
             </div>
           </div>
@@ -106,11 +106,11 @@ const Home = () => {
           <p>Simple products for tracking discipline, goals, and consistency.</p>
         </div>
 
-        <div className="feature-card">
+        {/* <div className="feature-card">
           <CalendarCheck size={22} />
           <h3>Counselling</h3>
           <p>Paid bookings for guided personal support and clarity sessions.</p>
-        </div>
+        </div> */}
       </div>
 
       <style>{`
