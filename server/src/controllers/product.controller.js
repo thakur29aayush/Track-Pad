@@ -70,7 +70,17 @@ async function createProduct(req, res, next) {
 
     const thumbnail = req.file ? `/uploads/${req.file.filename}` : null;
 
-    const slug = createSlug(data.title);
+    const baseSlug = createSlug(data.title);
+
+const existingProduct = await prisma.product.findUnique({
+  where: {
+    slug: baseSlug,
+  },
+});
+
+const slug = existingProduct
+  ? `${baseSlug}-${Date.now()}`
+  : baseSlug;
 
     const product = await prisma.product.create({
       data: {
