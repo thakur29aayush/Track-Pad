@@ -2,6 +2,7 @@ const express = require("express");
 
 const authMiddleware = require("../middleware/auth.middleware");
 const adminMiddleware = require("../middleware/admin.middleware");
+const { upload } = require("../middleware/upload");
 
 const { getAdminUsers } = require("../controllers/adminUser.controller");
 
@@ -30,8 +31,8 @@ router.get("/stats", getAdminStats);
 router.get("/orders", getAdminOrders);
 router.get("/users", getAdminUsers);
 
-router.post("/products", createProduct);
-router.put("/products/:id", updateProduct);
+router.post("/products", upload.single("thumbnail"), createProduct);
+router.put("/products/:id", upload.single("thumbnail"), updateProduct);
 router.delete("/products/:id", deleteProduct);
 
 router.get("/counselling", getAdminBookings);
