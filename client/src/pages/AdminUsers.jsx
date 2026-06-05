@@ -1,18 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  Ban,
+  CheckCircle2,
+  Edit3,
   Mail,
   Phone,
   RefreshCw,
+  Save,
   Search,
   ShieldCheck,
   Trash2,
   User,
   Users,
-  Edit3,
-  Ban,
-  CheckCircle2,
   X,
-  Save,
 } from "lucide-react";
 import {
   deleteUser,
@@ -22,6 +22,14 @@ import {
   updateUser,
 } from "../services/adminApi";
 
+const emptyEditForm = {
+  name: "",
+  email: "",
+  phone: "",
+  role: "USER",
+  isVerified: false,
+};
+
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
   const [status, setStatus] = useState("Loading users...");
@@ -29,20 +37,13 @@ const AdminUsers = () => {
   const [deletingId, setDeletingId] = useState("");
   const [savingId, setSavingId] = useState("");
   const [editingUser, setEditingUser] = useState(null);
-
-  const [editForm, setEditForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    role: "USER",
-    isVerified: false,
-  });
+  const [editForm, setEditForm] = useState(emptyEditForm);
 
   const loadUsers = async () => {
     try {
       setStatus("Loading users...");
       const data = await getAdminUsers();
-      setUsers(data.users || data || []);
+      setUsers(Array.isArray(data?.users) ? data.users : Array.isArray(data) ? data : []);
       setStatus("");
     } catch (error) {
       console.error(error);
@@ -94,13 +95,7 @@ const AdminUsers = () => {
 
   const cancelEdit = () => {
     setEditingUser(null);
-    setEditForm({
-      name: "",
-      email: "",
-      phone: "",
-      role: "USER",
-      isVerified: false,
-    });
+    setEditForm(emptyEditForm);
   };
 
   const updateEditForm = (field, value) => {
@@ -108,6 +103,25 @@ const AdminUsers = () => {
       ...prev,
       [field]: value,
     }));
+  };
+
+  const patchUserInState = (id, updated) => {
+    setUsers((prev) =>
+      prev.map((user) =>
+        user.id === id
+          ? {
+              ...user,
+              ...updated,
+              counts: user.counts,
+              totalPurchases: user.totalPurchases,
+              totalSpent: user.totalSpent,
+              productsBought: user.productsBought,
+              orders: user.orders,
+              bookings: user.bookings,
+            }
+          : user
+      )
+    );
   };
 
   const handleSave = async () => {
@@ -124,23 +138,7 @@ const AdminUsers = () => {
         isVerified: editForm.isVerified,
       });
 
-      setUsers((prev) =>
-        prev.map((user) =>
-          user.id === editingUser.id
-            ? {
-                ...user,
-                ...updated,
-                counts: user.counts,
-                totalPurchases: user.totalPurchases,
-                totalSpent: user.totalSpent,
-                productsBought: user.productsBought,
-                orders: user.orders,
-                bookings: user.bookings,
-              }
-            : user
-        )
-      );
-
+      patchUserInState(editingUser.id, updated);
       setStatus("User updated successfully.");
       cancelEdit();
     } catch (error) {
@@ -156,13 +154,10 @@ const AdminUsers = () => {
       const res = await suspendUser(user.id);
       const updated = res.user || res;
 
-      setUsers((prev) =>
-        prev.map((item) =>
-          item.id === user.id
-            ? { ...item, ...updated, isSuspended: true }
-            : item
-        )
-      );
+      patchUserInState(user.id, {
+        ...updated,
+        isSuspended: true,
+      });
 
       setStatus("User suspended successfully.");
     } catch (error) {
@@ -176,13 +171,10 @@ const AdminUsers = () => {
       const res = await unsuspendUser(user.id);
       const updated = res.user || res;
 
-      setUsers((prev) =>
-        prev.map((item) =>
-          item.id === user.id
-            ? { ...item, ...updated, isSuspended: false }
-            : item
-        )
-      );
+      patchUserInState(user.id, {
+        ...updated,
+        isSuspended: false,
+      });
 
       setStatus("User unsuspended successfully.");
     } catch (error) {
@@ -193,7 +185,7 @@ const AdminUsers = () => {
 
   const handleDelete = async (user) => {
     const confirmed = window.confirm(
-      `Delete ${user.email || "this user"}?\n\nThis will remove the user's account and related details. This action cannot be undone.`
+      `Delete ${user.email || "this user"}?\n\nThis action cannot be undone.`
     );
 
     if (!confirmed) return;
@@ -217,7 +209,8 @@ const AdminUsers = () => {
       <header className="admin-users-header">
         <div>
           <p className="admin-eyebrow">
-            <ShieldCheck size={13} /> Admin Control
+            <ShieldCheck size={13} />
+            Admin Control
           </p>
 
           <h1>
@@ -225,30 +218,31 @@ const AdminUsers = () => {
           </h1>
 
           <p>
-            Edit user details, suspend accounts, view purchases and orders, or
-            delete accounts when needed.
+            Edit users, suspend accounts, review purchases, and remove accounts
+            when needed.
           </p>
         </div>
 
         <button type="button" onClick={loadUsers} className="refresh-btn">
-          <RefreshCw size={14} /> Refresh
+          <RefreshCw size={14} />
+          Refresh
         </button>
       </header>
 
       <div className="users-toolbar">
         <div className="users-search">
-          <Search size={16} />
+          <Search size={15} />
           <input
             type="text"
-            placeholder="Search users by name, email, phone, or role..."
+            placeholder="Search name, email, phone, or role..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
         <div className="users-count">
-          <Users size={16} />
-          {filteredUsers.length} Users
+          <Users size={15} />
+          {filteredUsers.length} users
         </div>
       </div>
 
@@ -259,11 +253,11 @@ const AdminUsers = () => {
           <div className="edit-panel-header">
             <div>
               <h3>Edit User</h3>
-              <p>Orders and purchases are read-only. Because money records should not be casually poked with a stick.</p>
+              <p>Orders and purchases stay read-only, as they should.</p>
             </div>
 
             <button type="button" className="close-edit-btn" onClick={cancelEdit}>
-              <X size={16} />
+              <X size={15} />
             </button>
           </div>
 
@@ -311,9 +305,7 @@ const AdminUsers = () => {
               <input
                 type="checkbox"
                 checked={editForm.isVerified}
-                onChange={(e) =>
-                  updateEditForm("isVerified", e.target.checked)
-                }
+                onChange={(e) => updateEditForm("isVerified", e.target.checked)}
               />
               <span>Verified user</span>
             </label>
@@ -331,7 +323,7 @@ const AdminUsers = () => {
               onClick={handleSave}
             >
               <Save size={14} />
-              {savingId === editingUser.id ? "Saving..." : "Save Changes"}
+              {savingId === editingUser.id ? "Saving..." : "Save"}
             </button>
           </div>
         </div>
@@ -360,14 +352,11 @@ const AdminUsers = () => {
                 const isDuplicate = emailKey && duplicateEmails[emailKey] > 1;
 
                 return (
-                  <tr
-                    key={user.id}
-                    className={isDuplicate ? "duplicate-row" : ""}
-                  >
+                  <tr key={user.id} className={isDuplicate ? "duplicate-row" : ""}>
                     <td>
                       <div className="user-cell">
                         <div className="avatar">
-                          <User size={16} />
+                          <User size={15} />
                         </div>
 
                         <div>
@@ -375,9 +364,7 @@ const AdminUsers = () => {
                           <span>ID: {user.id}</span>
 
                           {isDuplicate && (
-                            <em className="duplicate-badge">
-                              Duplicate email
-                            </em>
+                            <em className="duplicate-badge">Duplicate</em>
                           )}
                         </div>
                       </div>
@@ -385,14 +372,14 @@ const AdminUsers = () => {
 
                     <td>
                       <span className="icon-text">
-                        <Mail size={14} />
+                        <Mail size={13} />
                         {user.email || "N/A"}
                       </span>
                     </td>
 
                     <td>
                       <span className="icon-text">
-                        <Phone size={14} />
+                        <Phone size={13} />
                         {user.phone || "N/A"}
                       </span>
                     </td>
@@ -412,7 +399,6 @@ const AdminUsers = () => {
                     </td>
 
                     <td>{user.counts?.purchases ?? user.totalPurchases ?? 0}</td>
-
                     <td>{user.counts?.orders ?? user.orders?.length ?? 0}</td>
 
                     <td>
@@ -428,7 +414,7 @@ const AdminUsers = () => {
                           className="edit-btn"
                           onClick={() => startEdit(user)}
                         >
-                          <Edit3 size={13} />
+                          <Edit3 size={12} />
                           Edit
                         </button>
 
@@ -438,7 +424,7 @@ const AdminUsers = () => {
                             className="unsuspend-btn"
                             onClick={() => handleUnsuspend(user)}
                           >
-                            <CheckCircle2 size={13} />
+                            <CheckCircle2 size={12} />
                             Unsuspend
                           </button>
                         ) : (
@@ -447,7 +433,7 @@ const AdminUsers = () => {
                             className="suspend-btn"
                             onClick={() => handleSuspend(user)}
                           >
-                            <Ban size={13} />
+                            <Ban size={12} />
                             Suspend
                           </button>
                         )}
@@ -458,7 +444,7 @@ const AdminUsers = () => {
                           disabled={deletingId === user.id}
                           onClick={() => handleDelete(user)}
                         >
-                          <Trash2 size={13} />
+                          <Trash2 size={12} />
                           {deletingId === user.id ? "Deleting..." : "Delete"}
                         </button>
                       </div>
@@ -479,18 +465,18 @@ const AdminUsers = () => {
 
       <style>{`
         .admin-users-page {
-          padding: 18px 0 42px;
+          padding: 16px 0 40px;
           font-family: Inter, "DM Sans", system-ui, sans-serif;
         }
 
         .admin-users-header {
           display: flex;
           justify-content: space-between;
-          align-items: end;
-          gap: 16px;
-          margin-bottom: 14px;
-          padding: 20px;
-          border-radius: 22px;
+          align-items: flex-end;
+          gap: 14px;
+          margin-bottom: 12px;
+          padding: 18px;
+          border-radius: 20px;
           background:
             linear-gradient(135deg, rgba(22,163,74,0.1), rgba(245,216,0,0.045)),
             var(--card);
@@ -502,22 +488,23 @@ const AdminUsers = () => {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          margin: 0 0 8px;
+          margin: 0 0 7px;
           padding: 5px 8px;
           border-radius: 999px;
           background: rgba(22, 163, 74, 0.12);
           color: #16a34a;
           border: 1px solid rgba(22,163,74,0.18);
-          font-size: 0.62rem;
+          font-size: 0.6rem;
           font-weight: 900;
-          letter-spacing: 0.12em;
+          letter-spacing: 0.11em;
           text-transform: uppercase;
         }
 
         .admin-users-header h1 {
           margin: 0;
-          font-size: clamp(1.9rem,3.8vw,3rem);
+          font-size: clamp(1.8rem, 3.4vw, 2.75rem);
           line-height: 1;
+          letter-spacing: -0.055em;
           font-weight: 950;
           color: var(--text);
         }
@@ -529,19 +516,19 @@ const AdminUsers = () => {
         }
 
         .admin-users-header p {
-          max-width: 620px;
-          margin: 8px 0 0;
+          max-width: 560px;
+          margin: 7px 0 0;
           color: var(--muted);
-          font-size: 0.86rem;
-          line-height: 1.55;
+          font-size: 0.82rem;
+          line-height: 1.5;
         }
 
         .refresh-btn {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          padding: 9px 12px;
-          font-size: 0.82rem;
+          padding: 8px 11px;
+          font-size: 0.78rem;
           white-space: nowrap;
           border-radius: 999px;
           border: 1px solid var(--border);
@@ -555,21 +542,28 @@ const AdminUsers = () => {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          gap: 12px;
-          margin-bottom: 14px;
+          gap: 10px;
+          margin-bottom: 12px;
           flex-wrap: wrap;
         }
 
         .users-search {
           flex: 1;
           min-width: 260px;
+          min-height: 40px;
           display: flex;
           align-items: center;
           gap: 8px;
-          padding: 11px 13px;
+          padding: 0 12px;
           border-radius: 999px;
           background: var(--card);
           border: 1px solid var(--border);
+          color: #16a34a;
+        }
+
+        .users-search:focus-within {
+          border-color: rgba(22, 163, 74, 0.55);
+          box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.08);
         }
 
         .users-search input {
@@ -578,33 +572,35 @@ const AdminUsers = () => {
           outline: 0;
           background: transparent;
           color: var(--text);
-          font-size: 0.9rem;
+          font-size: 0.84rem;
+          font-weight: 700;
         }
 
         .users-count {
+          min-height: 40px;
           display: inline-flex;
           align-items: center;
-          gap: 7px;
-          padding: 10px 13px;
+          gap: 6px;
+          padding: 0 12px;
           border-radius: 999px;
           background: rgba(22, 163, 74, 0.12);
           color: #16a34a;
           font-weight: 900;
-          font-size: 0.82rem;
+          font-size: 0.78rem;
           border: 1px solid rgba(22,163,74,0.18);
         }
 
         .admin-status {
-          margin: 0 0 12px;
+          margin: 0 0 10px;
           color: var(--muted);
           font-weight: 700;
-          font-size: 0.84rem;
+          font-size: 0.8rem;
         }
 
         .edit-panel {
-          margin-bottom: 14px;
-          padding: 18px;
-          border-radius: 20px;
+          margin-bottom: 12px;
+          padding: 16px;
+          border-radius: 18px;
           background: var(--card);
           border: 1px solid var(--border);
           box-shadow: var(--shadow);
@@ -614,70 +610,80 @@ const AdminUsers = () => {
           display: flex;
           justify-content: space-between;
           gap: 12px;
-          margin-bottom: 14px;
+          margin-bottom: 12px;
         }
 
         .edit-panel-header h3 {
           margin: 0;
           color: var(--text);
-          font-size: 1.08rem;
+          font-size: 1rem;
         }
 
         .edit-panel-header p {
-          margin: 5px 0 0;
+          margin: 4px 0 0;
           color: var(--muted);
-          font-size: 0.82rem;
-          line-height: 1.5;
+          font-size: 0.78rem;
+          line-height: 1.45;
         }
 
         .close-edit-btn {
-          width: 34px;
-          height: 34px;
+          width: 32px;
+          height: 32px;
+          display: grid;
+          place-items: center;
           border-radius: 50%;
           border: 1px solid var(--border);
           background: var(--bg);
           color: var(--text);
           cursor: pointer;
+          flex-shrink: 0;
         }
 
         .edit-grid {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 12px;
+          gap: 10px;
         }
 
         .edit-grid label {
           display: grid;
-          gap: 6px;
+          gap: 5px;
         }
 
         .edit-grid label span {
           color: var(--text);
-          font-size: 0.76rem;
+          font-size: 0.72rem;
           font-weight: 900;
         }
 
         .edit-grid input,
         .edit-grid select {
-          min-height: 42px;
+          min-height: 40px;
           border: 1px solid var(--border);
-          border-radius: 12px;
+          border-radius: 11px;
           background: var(--bg);
           color: var(--text);
           padding: 8px 10px;
           outline: none;
+          font-size: 0.82rem;
           font-weight: 700;
+        }
+
+        .edit-grid input:focus,
+        .edit-grid select:focus {
+          border-color: rgba(22, 163, 74, 0.55);
+          box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.08);
         }
 
         .checkbox-label {
           display: flex !important;
           align-items: center;
-          gap: 9px !important;
+          gap: 8px !important;
         }
 
         .checkbox-label input {
-          width: 16px;
-          height: 16px;
+          width: 15px;
+          height: 15px;
           min-height: auto;
         }
 
@@ -685,7 +691,7 @@ const AdminUsers = () => {
           display: flex;
           justify-content: flex-end;
           gap: 8px;
-          margin-top: 14px;
+          margin-top: 12px;
         }
 
         .cancel-btn,
@@ -694,9 +700,10 @@ const AdminUsers = () => {
           align-items: center;
           gap: 6px;
           border: 0;
-          padding: 9px 12px;
-          border-radius: 11px;
+          padding: 8px 11px;
+          border-radius: 10px;
           cursor: pointer;
+          font-size: 0.78rem;
           font-weight: 900;
         }
 
@@ -718,7 +725,7 @@ const AdminUsers = () => {
 
         .users-table-wrap {
           overflow-x: auto;
-          border-radius: 20px;
+          border-radius: 18px;
           background: var(--card);
           border: 1px solid var(--border);
           box-shadow: var(--shadow);
@@ -726,49 +733,59 @@ const AdminUsers = () => {
 
         .users-table {
           width: 100%;
+          min-width: 1160px;
           border-collapse: collapse;
-          min-width: 1250px;
         }
 
         .users-table th,
         .users-table td {
-          padding: 14px;
+          padding: 11px 12px;
           text-align: left;
           border-bottom: 1px solid var(--border);
-          font-size: 0.84rem;
+          font-size: 0.8rem;
           color: var(--text);
           vertical-align: middle;
         }
 
         .users-table th {
           color: var(--muted);
-          font-size: 0.72rem;
+          font-size: 0.66rem;
           text-transform: uppercase;
           letter-spacing: 0.08em;
           font-weight: 950;
-          background: var(--bg);
+          background: rgba(22, 163, 74, 0.045);
+          white-space: nowrap;
         }
 
         .users-table tr:last-child td {
           border-bottom: 0;
         }
 
+        .users-table tbody tr {
+          transition: background 0.18s ease;
+        }
+
+        .users-table tbody tr:hover {
+          background: rgba(22, 163, 74, 0.03);
+        }
+
         .duplicate-row {
-          background: rgba(239, 68, 68, 0.045);
+          background: rgba(239, 68, 68, 0.04);
         }
 
         .user-cell {
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 9px;
+          min-width: 210px;
         }
 
         .avatar {
-          width: 38px;
-          height: 38px;
+          width: 34px;
+          height: 34px;
           display: grid;
           place-items: center;
-          border-radius: 13px;
+          border-radius: 12px;
           background: rgba(22,163,74,0.12);
           color: #16a34a;
           flex-shrink: 0;
@@ -776,35 +793,44 @@ const AdminUsers = () => {
 
         .user-cell strong {
           display: block;
-          font-size: 0.9rem;
+          font-size: 0.84rem;
           color: var(--text);
+          line-height: 1.2;
         }
 
         .user-cell span {
           display: block;
-          margin-top: 3px;
-          font-size: 0.72rem;
+          max-width: 170px;
+          margin-top: 2px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          font-size: 0.68rem;
           color: var(--muted);
         }
 
         .duplicate-badge {
           display: inline-flex;
-          margin-top: 6px;
-          padding: 4px 7px;
+          margin-top: 4px;
+          padding: 3px 6px;
           border-radius: 999px;
           background: rgba(239,68,68,0.12);
           color: #ef4444;
           border: 1px solid rgba(239,68,68,0.18);
           font-style: normal;
-          font-size: 0.66rem;
+          font-size: 0.62rem;
           font-weight: 900;
         }
 
         .icon-text {
           display: inline-flex;
           align-items: center;
-          gap: 6px;
+          gap: 5px;
+          max-width: 210px;
           color: var(--muted);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .role-badge,
@@ -813,11 +839,12 @@ const AdminUsers = () => {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          padding: 5px 9px;
+          padding: 5px 8px;
           border-radius: 999px;
-          font-size: 0.7rem;
+          font-size: 0.66rem;
           font-weight: 950;
           text-transform: uppercase;
+          white-space: nowrap;
         }
 
         .role-badge {
@@ -847,8 +874,9 @@ const AdminUsers = () => {
 
         .action-group {
           display: flex;
-          gap: 6px;
+          gap: 5px;
           flex-wrap: wrap;
+          min-width: 220px;
         }
 
         .edit-btn,
@@ -858,13 +886,14 @@ const AdminUsers = () => {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          gap: 5px;
+          gap: 4px;
           border: 0;
-          padding: 8px 10px;
-          border-radius: 11px;
+          padding: 7px 9px;
+          border-radius: 10px;
           cursor: pointer;
-          font-size: 0.74rem;
+          font-size: 0.7rem;
           font-weight: 900;
+          white-space: nowrap;
         }
 
         .edit-btn {
@@ -896,13 +925,18 @@ const AdminUsers = () => {
           text-align: center !important;
           color: var(--muted) !important;
           font-weight: 800;
-          padding: 28px !important;
+          padding: 24px !important;
         }
 
         @media (max-width: 760px) {
+          .admin-users-page {
+            padding-top: 10px;
+          }
+
           .admin-users-header {
             align-items: flex-start;
             flex-direction: column;
+            padding: 16px;
           }
 
           .refresh-btn {
@@ -910,8 +944,27 @@ const AdminUsers = () => {
             justify-content: center;
           }
 
+          .users-search {
+            min-width: 100%;
+          }
+
+          .users-count {
+            width: 100%;
+            justify-content: center;
+          }
+
           .edit-grid {
             grid-template-columns: 1fr;
+          }
+
+          .edit-actions {
+            flex-direction: column;
+          }
+
+          .cancel-btn,
+          .save-btn {
+            width: 100%;
+            justify-content: center;
           }
         }
       `}</style>

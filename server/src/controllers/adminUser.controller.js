@@ -83,6 +83,7 @@ async function getAdminUsers(req, res, next) {
         phone: user.phone,
         role: user.role,
         isVerified: user.isVerified,
+        isSuspended: user.isSuspended,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
 
