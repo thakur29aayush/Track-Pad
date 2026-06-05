@@ -4,7 +4,10 @@ const authMiddleware = require("../middleware/auth.middleware");
 const adminMiddleware = require("../middleware/admin.middleware");
 const { upload } = require("../middleware/upload");
 
-const { getAdminUsers } = require("../controllers/adminUser.controller");
+const {
+  getAdminUsers,
+  deleteAdminUser,
+} = require("../controllers/adminUser.controller");
 
 const {
   createProduct,
@@ -29,7 +32,9 @@ router.use(adminMiddleware);
 
 router.get("/stats", getAdminStats);
 router.get("/orders", getAdminOrders);
+
 router.get("/users", getAdminUsers);
+router.delete("/users/:id", deleteAdminUser);
 
 router.post("/products", upload.single("thumbnail"), createProduct);
 router.put("/products/:id", upload.single("thumbnail"), updateProduct);

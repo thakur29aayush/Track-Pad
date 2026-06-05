@@ -7,6 +7,14 @@ async function getAdminUsers(req, res, next) {
         createdAt: "desc",
       },
       include: {
+        _count: {
+          select: {
+            otps: true,
+            orders: true,
+            purchases: true,
+            bookings: true,
+          },
+        },
         purchases: {
           include: {
             product: {
@@ -17,21 +25,55 @@ async function getAdminUsers(req, res, next) {
                 type: true,
               },
             },
+            order: {
+              select: {
+                id: true,
+                status: true,
+                totalAmount: true,
+                createdAt: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
+        orders: {
+          select: {
+            id: true,
+            status: true,
+            totalAmount: true,
+            createdAt: true,
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
+        bookings: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            preferredDate: true,
+            status: true,
+            paymentStatus: true,
+            createdAt: true,
+          },
+          orderBy: {
+            createdAt: "desc",
           },
         },
       },
     });
 
     const formattedUsers = users.map((user) => {
-      const successfulPurchases = user.purchases.filter(
-        (purchase) =>
-          purchase.status === "PAID" ||
-          purchase.status === "SUCCESS" ||
-          purchase.status === "COMPLETED"
+      const paidPurchases = user.purchases.filter(
+        (purchase) => purchase.order?.status === "PAID"
       );
 
-      const totalSpent = successfulPurchases.reduce((sum, purchase) => {
-        return sum + Number(purchase.amount || purchase.product?.price || 0);
+      const totalSpent = paidPurchases.reduce((sum, purchase) => {
+        return sum + Number(purchase.product?.price || 0);
       }, 0);
 
       return {
@@ -39,15 +81,46 @@ async function getAdminUsers(req, res, next) {
         name: user.name,
         email: user.email,
         role: user.role,
+        isVerified: user.isVerified,
         createdAt: user.createdAt,
-        totalPurchases: successfulPurchases.length,
+        updatedAt: user.updatedAt,
+
+        counts: {
+          otps: user._count.otps,
+          orders: user._count.orders,
+          purchases: user._count.purchases,
+          bookings: user._count.bookings,
+        },
+
+        totalPurchases: paidPurchases.length,
         totalSpent,
-        productsBought: successfulPurchases.map((purchase) => ({
+
+        productsBought: paidPurchases.map((purchase) => ({
           id: purchase.product?.id,
           title: purchase.product?.title,
           price: purchase.product?.price,
           type: purchase.product?.type,
+          orderId: purchase.order?.id,
+          orderStatus: purchase.order?.status,
           purchasedAt: purchase.createdAt,
+        })),
+
+        orders: user.orders.map((order) => ({
+          id: order.id,
+          status: order.status,
+          totalAmount: order.totalAmount,
+          createdAt: order.createdAt,
+        })),
+
+        bookings: user.bookings.map((booking) => ({
+          id: booking.id,
+          name: booking.name,
+          email: booking.email,
+          phone: booking.phone,
+          preferredDate: booking.preferredDate,
+          status: booking.status,
+          paymentStatus: booking.paymentStatus,
+          createdAt: booking.createdAt,
         })),
       };
     });
@@ -60,6 +133,39 @@ async function getAdminUsers(req, res, next) {
   }
 }
 
+async function deleteAdminUser(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    if (req.user?.id === id) {
+      return res.status(400).json({
+        message: "You cannot delete your own admin account.",
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found.",
+      });
+    }
+
+    await prisma.user.delete({
+      where: { id },
+    });
+
+    res.json({
+      message: "User and all related data deleted successfully.",
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   getAdminUsers,
+  deleteAdminUser,
 };

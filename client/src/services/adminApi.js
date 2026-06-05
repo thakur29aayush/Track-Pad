@@ -15,6 +15,11 @@ export const getAdminUsers = async () => {
   return res.data.users;
 };
 
+export const deleteUser = async (id) => {
+  const res = await api.delete(`/admin/users/${id}`);
+  return res.data;
+};
+
 export const createProduct = async (payload) => {
   const res = await api.post("/admin/products", payload);
   return res.data.product;

@@ -5,15 +5,17 @@ import {
   RefreshCw,
   Search,
   ShieldCheck,
+  Trash2,
   User,
   Users,
 } from "lucide-react";
-import { getAdminUsers } from "../services/adminApi";
+import { deleteUser, getAdminUsers } from "../services/adminApi";
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
   const [status, setStatus] = useState("Loading users...");
   const [search, setSearch] = useState("");
+  const [deletingId, setDeletingId] = useState("");
 
   const loadUsers = async () => {
     try {
@@ -33,6 +35,17 @@ const AdminUsers = () => {
     loadUsers();
   }, []);
 
+  const duplicateEmails = useMemo(() => {
+    const counts = {};
+
+    users.forEach((user) => {
+      const email = user.email?.toLowerCase();
+      if (email) counts[email] = (counts[email] || 0) + 1;
+    });
+
+    return counts;
+  }, [users]);
+
   const filteredUsers = useMemo(() => {
     const term = search.toLowerCase().trim();
 
@@ -48,6 +61,27 @@ const AdminUsers = () => {
     });
   }, [users, search]);
 
+  const handleDelete = async (user) => {
+    const confirmed = window.confirm(
+      `Delete ${user.email || "this user"}?\n\nThis will remove the user's account and related details. This action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setDeletingId(user.id);
+      await deleteUser(user.id);
+
+      setUsers((prev) => prev.filter((item) => item.id !== user.id));
+      setStatus("User deleted successfully.");
+    } catch (error) {
+      console.error(error);
+      setStatus(error.response?.data?.message || "Failed to delete user.");
+    } finally {
+      setDeletingId("");
+    }
+  };
+
   return (
     <section className="admin-users-page">
       <header className="admin-users-header">
@@ -61,8 +95,8 @@ const AdminUsers = () => {
           </h1>
 
           <p>
-            View registered users, contact details, roles, purchases, and account
-            activity from one place.
+            View registered users, contact details, roles, purchases, orders,
+            and remove accounts when needed.
           </p>
         </div>
 
@@ -101,59 +135,87 @@ const AdminUsers = () => {
               <th>Purchases</th>
               <th>Orders</th>
               <th>Joined</th>
+              <th>Actions</th>
             </tr>
           </thead>
 
           <tbody>
             {filteredUsers.length > 0 ? (
-              filteredUsers.map((user) => (
-                <tr key={user.id}>
-                  <td>
-                    <div className="user-cell">
-                      <div className="avatar">
-                        <User size={16} />
+              filteredUsers.map((user) => {
+                const emailKey = user.email?.toLowerCase();
+                const isDuplicate =
+                  emailKey && duplicateEmails[emailKey] > 1;
+
+                return (
+                  <tr key={user.id} className={isDuplicate ? "duplicate-row" : ""}>
+                    <td>
+                      <div className="user-cell">
+                        <div className="avatar">
+                          <User size={16} />
+                        </div>
+
+                        <div>
+                          <strong>{user.name || "No Name"}</strong>
+                          <span>ID: {user.id}</span>
+
+                          {isDuplicate && (
+                            <em className="duplicate-badge">
+                              Duplicate email
+                            </em>
+                          )}
+                        </div>
                       </div>
-                      <div>
-                        <strong>{user.name || "No Name"}</strong>
-                        <span>ID: {user.id}</span>
-                      </div>
-                    </div>
-                  </td>
+                    </td>
 
-                  <td>
-                    <span className="icon-text">
-                      <Mail size={14} />
-                      {user.email || "N/A"}
-                    </span>
-                  </td>
+                    <td>
+                      <span className="icon-text">
+                        <Mail size={14} />
+                        {user.email || "N/A"}
+                      </span>
+                    </td>
 
-                  <td>
-                    <span className="icon-text">
-                      <Phone size={14} />
-                      {user.phone || "N/A"}
-                    </span>
-                  </td>
+                    <td>
+                      <span className="icon-text">
+                        <Phone size={14} />
+                        {user.phone || "N/A"}
+                      </span>
+                    </td>
 
-                  <td>
-                    <span className={`role-badge ${user.role || "user"}`}>
-                      {user.role || "USER"}
-                    </span>
-                  </td>
+                    <td>
+                      <span className={`role-badge ${user.role || "user"}`}>
+                        {user.role || "USER"}
+                      </span>
+                    </td>
 
-                  <td>{user._count?.purchases ?? user.purchases?.length ?? 0}</td>
+                    <td>
+                      {user._count?.purchases ?? user.purchases?.length ?? 0}
+                    </td>
 
-                  <td>{user._count?.orders ?? user.orders?.length ?? 0}</td>
+                    <td>{user._count?.orders ?? user.orders?.length ?? 0}</td>
 
-                  <td>
-                    {user.createdAt
-                      ? new Date(user.createdAt).toLocaleDateString()
-                      : "N/A"}
-                  </td>
-                </tr>
-              ))
+                    <td>
+                      {user.createdAt
+                        ? new Date(user.createdAt).toLocaleDateString()
+                        : "N/A"}
+                    </td>
+
+                    <td>
+                      <button
+                        type="button"
+                        className="delete-user-btn"
+                        disabled={deletingId === user.id}
+                        onClick={() => handleDelete(user)}
+                      >
+                        <Trash2 size={14} />
+                        {deletingId === user.id ? "Deleting..." : "Delete"}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
             ) : (
               <tr>
-                <td colSpan="7" className="empty-cell">
+                <td colSpan="8" className="empty-cell">
                   No users found.
                 </td>
               </tr>
@@ -297,7 +359,7 @@ const AdminUsers = () => {
         .users-table {
           width: 100%;
           border-collapse: collapse;
-          min-width: 920px;
+          min-width: 1080px;
         }
 
         .users-table th,
@@ -307,6 +369,7 @@ const AdminUsers = () => {
           border-bottom: 1px solid var(--border);
           font-size: 0.84rem;
           color: var(--text);
+          vertical-align: middle;
         }
 
         .users-table th {
@@ -320,6 +383,10 @@ const AdminUsers = () => {
 
         .users-table tr:last-child td {
           border-bottom: 0;
+        }
+
+        .duplicate-row {
+          background: rgba(239, 68, 68, 0.045);
         }
 
         .user-cell {
@@ -352,6 +419,19 @@ const AdminUsers = () => {
           color: var(--muted);
         }
 
+        .duplicate-badge {
+          display: inline-flex;
+          margin-top: 6px;
+          padding: 4px 7px;
+          border-radius: 999px;
+          background: rgba(239,68,68,0.12);
+          color: #ef4444;
+          border: 1px solid rgba(239,68,68,0.18);
+          font-style: normal;
+          font-size: 0.66rem;
+          font-weight: 900;
+        }
+
         .icon-text {
           display: inline-flex;
           align-items: center;
@@ -377,6 +457,32 @@ const AdminUsers = () => {
           background: rgba(214,179,0,0.14);
           color: #b89400;
           border-color: rgba(214,179,0,0.24);
+        }
+
+        .delete-user-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          border: 0;
+          padding: 8px 10px;
+          border-radius: 11px;
+          background: rgba(239,68,68,0.12);
+          color: #ef4444;
+          cursor: pointer;
+          font-size: 0.76rem;
+          font-weight: 900;
+          transition: transform 0.18s ease, background 0.18s ease;
+        }
+
+        .delete-user-btn:hover:not(:disabled) {
+          transform: translateY(-1px);
+          background: rgba(239,68,68,0.18);
+        }
+
+        .delete-user-btn:disabled {
+          opacity: 0.55;
+          cursor: not-allowed;
         }
 
         .empty-cell {
