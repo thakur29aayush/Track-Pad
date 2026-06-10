@@ -23,7 +23,6 @@ const Products = () => {
   const [query, setQuery] = useState("");
   const [type, setType] = useState("ALL");
   const [priceFilter, setPriceFilter] = useState("ALL");
-  const [featuredOnly, setFeaturedOnly] = useState(false);
   const [sortBy, setSortBy] = useState("LATEST");
 
   useEffect(() => {
@@ -56,13 +55,11 @@ const Products = () => {
   const stats = useMemo(() => {
     const paid = products.filter((p) => Number(p.price) > 0).length;
     const free = products.filter((p) => Number(p.price) <= 0).length;
-    const featured = products.filter((p) => p.isFeatured).length;
 
     return {
       total: products.length,
       paid,
       free,
-      featured,
     };
   }, [products]);
 
@@ -86,9 +83,8 @@ const Products = () => {
         (priceFilter === "FREE" && price <= 0) ||
         (priceFilter === "PAID" && price > 0);
 
-      const matchesFeatured = !featuredOnly || p.isFeatured;
 
-      return matchesQuery && matchesType && matchesPrice && matchesFeatured;
+      return matchesQuery && matchesType && matchesPrice;
     });
 
     result = [...result].sort((a, b) => {
@@ -105,13 +101,12 @@ const Products = () => {
     });
 
     return result;
-  }, [products, query, type, priceFilter, featuredOnly, sortBy]);
+  }, [products, query, type, priceFilter, sortBy]);
 
   const clearFilters = () => {
     setQuery("");
     setType("ALL");
     setPriceFilter("ALL");
-    setFeaturedOnly(false);
     setSortBy("LATEST");
   };
 
@@ -119,7 +114,6 @@ const Products = () => {
     query.trim() ||
     type !== "ALL" ||
     priceFilter !== "ALL" ||
-    featuredOnly ||
     sortBy !== "LATEST";
 
   const isLoading = status && !statusError;
@@ -173,10 +167,6 @@ const Products = () => {
               <strong>{stats.free}</strong>
               <span>Free</span>
             </div>
-            <div>
-              <strong>{stats.featured}</strong>
-              <span>Featured</span>
-            </div>
           </div>
         </div>
       </header>
@@ -202,15 +192,6 @@ const Products = () => {
               </button>
             )}
           </div>
-
-          <button
-            type="button"
-            className={`featured-toggle ${featuredOnly ? "active" : ""}`}
-            onClick={() => setFeaturedOnly((prev) => !prev)}
-          >
-            <Star size={14} />
-            <span>Featured Only</span>
-          </button>
         </div>
 
         <div className="catalog-filters-row">
@@ -571,7 +552,7 @@ const Products = () => {
           color: var(--text, #000);
         }
 
-        .featured-toggle,
+        
         .reset-btn,
         .clear-btn-lg {
           height: 40px;
@@ -590,16 +571,9 @@ const Products = () => {
           transition: background 0.15s, border-color 0.15s;
         }
 
-        .featured-toggle:hover,
         .reset-btn:hover,
         .clear-btn-lg:hover {
           background: var(--border);
-        }
-
-        .featured-toggle.active {
-          background: rgba(22, 163, 74, 0.08);
-          color: #16a34a;
-          border-color: rgba(22, 163, 74, 0.25);
         }
 
         .reset-btn {
