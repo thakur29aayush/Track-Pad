@@ -50,7 +50,6 @@ const Products = () => {
     const uniqueTypes = [
       ...new Set(products.map((p) => p.type).filter(Boolean)),
     ];
-
     return ["ALL", ...uniqueTypes];
   }, [products]);
 
@@ -128,12 +127,9 @@ const Products = () => {
   return (
     <section className="products-page">
       <header className="products-hero">
-        <div className="hero-glow hero-glow-one" />
-        <div className="hero-glow hero-glow-two" />
-
-        <div className="products-heading">
+        <div className="hero-content">
           <p className="products-eyebrow">
-            <Sparkles size={13} />
+            <Sparkles size={12} />
             Digital Store
           </p>
 
@@ -141,23 +137,22 @@ const Products = () => {
             Digital products for <span>cleaner routines.</span>
           </h1>
 
-          <p>
+          <p className="hero-subtitle">
             Premium templates, planners, trackers, and practical systems built
-            to organize your work and life without creating yet another digital
-            landfill.
+            to organize your work and life cleanly.
           </p>
 
           <div className="hero-pills">
             <span>
-              <CheckCircle2 size={13} />
+              <CheckCircle2 size={12} />
               Instant access
             </span>
             <span>
-              <Zap size={13} />
+              <Zap size={12} />
               Productivity focused
             </span>
             <span>
-              <Star size={13} />
+              <Star size={12} />
               Premium resources
             </span>
           </div>
@@ -166,7 +161,7 @@ const Products = () => {
         <div className="products-stats">
           <div className="stat-card main-stat">
             <strong>{stats.total}</strong>
-            <span>Total products</span>
+            <span>Total Catalog</span>
           </div>
 
           <div className="mini-stats">
@@ -187,16 +182,15 @@ const Products = () => {
       </header>
 
       <div className="catalog-panel">
-        <div className="catalog-top">
+        <div className="catalog-controls-row">
           <div className="catalog-search">
-            <Search size={16} />
+            <Search size={15} />
             <input
               type="text"
               placeholder="Search templates, planners, trackers..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
-
             {query && (
               <button
                 type="button"
@@ -204,7 +198,7 @@ const Products = () => {
                 onClick={() => setQuery("")}
                 aria-label="Clear search"
               >
-                <X size={13} />
+                <X size={12} />
               </button>
             )}
           </div>
@@ -215,12 +209,12 @@ const Products = () => {
             onClick={() => setFeaturedOnly((prev) => !prev)}
           >
             <Star size={14} />
-            Featured
+            <span>Featured Only</span>
           </button>
         </div>
 
-        <div className="catalog-filters">
-          <label className="filter-field">
+        <div className="catalog-filters-row">
+          <div className="filter-field">
             <SlidersHorizontal size={14} />
             <select value={type} onChange={(e) => setType(e.target.value)}>
               {productTypes.map((item) => (
@@ -229,9 +223,9 @@ const Products = () => {
                 </option>
               ))}
             </select>
-          </label>
+          </div>
 
-          <label className="filter-field">
+          <div className="filter-field">
             <Filter size={14} />
             <select
               value={priceFilter}
@@ -241,9 +235,9 @@ const Products = () => {
               <option value="FREE">Free</option>
               <option value="PAID">Paid</option>
             </select>
-          </label>
+          </div>
 
-          <label className="filter-field">
+          <div className="filter-field">
             <ArrowDownAZ size={14} />
             <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
               <option value="LATEST">Latest First</option>
@@ -251,7 +245,7 @@ const Products = () => {
               <option value="PRICE_HIGH">Price: High to Low</option>
               <option value="TITLE">Title A-Z</option>
             </select>
-          </label>
+          </div>
 
           {hasFilters && (
             <button type="button" className="reset-btn" onClick={clearFilters}>
@@ -277,7 +271,7 @@ const Products = () => {
         {hasFilters && !status && (
           <button type="button" className="clear-inline" onClick={clearFilters}>
             <X size={12} />
-            Clear filters
+            Clear active filters
           </button>
         )}
       </div>
@@ -286,30 +280,27 @@ const Products = () => {
         <div className="products-skeleton-grid">
           {Array.from({ length: 6 }).map((_, index) => (
             <div className="product-skeleton" key={index}>
-              <div />
-              <span />
-              <strong />
-              <p />
-              <em />
+              <div className="skeleton-image" />
+              <span className="skeleton-tag" />
+              <strong className="skeleton-title" />
+              <p className="skeleton-text" />
+              <em className="skeleton-footer" />
             </div>
           ))}
         </div>
       ) : !status && filteredProducts.length === 0 ? (
         <div className="empty-products">
           <div className="empty-icon">
-            <Boxes size={34} />
+            <Boxes size={28} />
           </div>
-
           <h3>No matching products found</h3>
           <p>
-            Try a different keyword, remove a filter, or accept that even search
-            bars need mercy sometimes.
+            Try refining your keyword search or adjusting your custom configuration filters.
           </p>
-
           {hasFilters && (
             <button type="button" className="clear-btn-lg" onClick={clearFilters}>
               <RotateCcw size={14} />
-              Clear all filters
+              Reset filters
             </button>
           )}
         </div>
@@ -321,11 +312,12 @@ const Products = () => {
         * {
           scrollbar-width: thin;
           scrollbar-color: var(--border) transparent;
+          box-sizing: border-box;
         }
 
         *::-webkit-scrollbar {
-          width: 6px;
-          height: 6px;
+          width: 5px;
+          height: 5px;
         }
 
         *::-webkit-scrollbar-track {
@@ -338,313 +330,307 @@ const Products = () => {
         }
 
         .products-page {
-          padding: 14px 0 46px;
-          font-family: Inter, "DM Sans", system-ui, sans-serif;
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 24px 16px;
+          font-family: Inter, system-ui, -apple-system, sans-serif;
           display: flex;
           flex-direction: column;
-          gap: 14px;
+          gap: 20px;
         }
 
+        /* --- HERO HEADER SECTION --- */
         .products-hero {
-          position: relative;
-          overflow: hidden;
-          display: grid;
-          grid-template-columns: minmax(0, 1fr) 310px;
-          align-items: end;
-          gap: 24px;
-          padding: 28px;
-          border-radius: 26px;
-          background:
-            radial-gradient(circle at top left, rgba(22,163,74,0.14), transparent 34%),
-            radial-gradient(circle at bottom right, rgba(214,179,0,0.12), transparent 36%),
-            var(--card);
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 32px;
+          padding: 32px;
+          border-radius: 16px;
+          background: var(--card);
           border: 1px solid var(--border);
-          box-shadow: var(--shadow);
+          box-shadow: var(--shadow-sm);
         }
 
-        .hero-glow {
-          position: absolute;
-          width: 160px;
-          height: 160px;
-          border-radius: 999px;
-          filter: blur(40px);
-          opacity: 0.32;
-          pointer-events: none;
-        }
-
-        .hero-glow-one {
-          top: -50px;
-          right: 190px;
-          background: #16a34a;
-        }
-
-        .hero-glow-two {
-          bottom: -70px;
-          right: -35px;
-          background: #d6b300;
-        }
-
-        .products-heading {
-          position: relative;
-          z-index: 1;
-          max-width: 700px;
+        .hero-content {
+          flex: 1;
+          max-width: 640px;
         }
 
         .products-eyebrow {
           display: inline-flex;
           align-items: center;
-          gap: 7px;
-          margin: 0 0 10px;
-          padding: 5px 11px;
-          border-radius: 999px;
-          background: rgba(22,163,74,0.12);
+          gap: 6px;
+          margin: 0 0 12px;
+          padding: 4px 10px;
+          border-radius: 99px;
+          background: rgba(22, 163, 74, 0.08);
           color: #16a34a;
-          border: 1px solid rgba(22,163,74,0.2);
-          font-size: 10px;
-          font-weight: 950;
-          letter-spacing: 0.11em;
+          border: 1px solid rgba(22, 163, 74, 0.15);
+          font-size: 11px;
+          font-weight: 600;
           text-transform: uppercase;
+          letter-spacing: 0.05em;
         }
 
         .products-hero h1 {
-          margin: 0;
+          margin: 0 0 10px;
           color: var(--text);
-          font-size: clamp(2rem, 4.6vw, 4.1rem);
-          line-height: 0.95;
-          letter-spacing: -0.07em;
-          font-weight: 950;
+          font-size: 2.25rem;
+          line-height: 1.15;
+          letter-spacing: -0.03em;
+          font-weight: 800;
         }
 
         .products-hero h1 span {
-          background: linear-gradient(120deg, #16a34a, #d6b300);
+          background: linear-gradient(135deg, #16a34a, #d6b300);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
         }
 
-        .products-hero p {
-          max-width: 620px;
-          margin: 14px 0 0;
+        .hero-subtitle {
+          margin: 0 0 20px;
           color: var(--muted);
-          font-size: 0.94rem;
-          line-height: 1.65;
-          font-weight: 600;
+          font-size: 0.95rem;
+          line-height: 1.5;
+          font-weight: 400;
         }
 
         .hero-pills {
           display: flex;
           flex-wrap: wrap;
           gap: 8px;
-          margin-top: 18px;
         }
 
         .hero-pills span {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          padding: 8px 11px;
-          border-radius: 999px;
+          padding: 6px 12px;
+          border-radius: 99px;
           background: var(--bg);
           border: 1px solid var(--border);
           color: var(--text);
-          font-size: 0.76rem;
-          font-weight: 850;
+          font-size: 0.78rem;
+          font-weight: 500;
         }
 
         .hero-pills svg {
           color: #16a34a;
         }
 
+        /* --- STATS SECTION --- */
         .products-stats {
-          position: relative;
-          z-index: 1;
-          display: grid;
-          gap: 10px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          min-width: 260px;
         }
 
         .stat-card,
         .mini-stats > div {
-          background: color-mix(in srgb, var(--bg) 86%, transparent);
+          background: var(--bg);
           border: 1px solid var(--border);
-          border-radius: 18px;
-          box-shadow: 0 14px 30px rgba(0,0,0,0.05);
+          border-radius: 12px;
         }
 
         .main-stat {
-          padding: 20px;
-          text-align: right;
+          padding: 16px;
+          text-align: center;
+          background: linear-gradient(to bottom right, var(--bg), var(--card));
         }
 
         .main-stat strong {
           display: block;
           color: #16a34a;
-          font-size: 3.1rem;
-          line-height: 0.9;
-          letter-spacing: -0.08em;
-          font-weight: 950;
+          font-size: 2.5rem;
+          line-height: 1;
+          letter-spacing: -0.04em;
+          font-weight: 800;
         }
 
         .main-stat span,
         .mini-stats span {
           display: block;
-          margin-top: 7px;
+          margin-top: 4px;
           color: var(--muted);
-          font-size: 0.68rem;
-          font-weight: 950;
+          font-size: 0.7rem;
+          font-weight: 600;
           text-transform: uppercase;
-          letter-spacing: 0.09em;
+          letter-spacing: 0.05em;
         }
 
         .mini-stats {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
-          gap: 10px;
+          gap: 8px;
         }
 
         .mini-stats > div {
-          padding: 13px 10px;
+          padding: 10px 4px;
           text-align: center;
         }
 
         .mini-stats strong {
           color: var(--text);
-          font-size: 1.25rem;
-          font-weight: 950;
+          font-size: 1.05rem;
+          font-weight: 700;
         }
 
+        /* --- CONTROL CATALOG PANEL --- */
         .catalog-panel {
-          padding: 12px;
-          border-radius: 22px;
+          padding: 16px;
+          border-radius: 14px;
           background: var(--card);
           border: 1px solid var(--border);
-          box-shadow: var(--shadow);
-          display: grid;
-          gap: 10px;
+          box-shadow: var(--shadow-sm);
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
         }
 
-        .catalog-top {
+        .catalog-controls-row {
           display: grid;
           grid-template-columns: 1fr auto;
-          gap: 10px;
+          gap: 12px;
         }
 
-        .catalog-search,
-        .filter-field {
-          height: 46px;
+        .catalog-search {
+          height: 40px;
           display: flex;
           align-items: center;
-          gap: 9px;
+          gap: 10px;
           padding: 0 14px;
-          border-radius: 14px;
+          border-radius: 8px;
           background: var(--bg);
           border: 1px solid var(--border);
-          color: #16a34a;
-          transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s;
+          color: var(--muted);
+          transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
 
-        .catalog-search:focus-within,
-        .filter-field:focus-within {
-          border-color: rgba(22,163,74,0.55);
-          box-shadow: 0 0 0 3px rgba(22,163,74,0.08);
+        .catalog-search:focus-within {
+          border-color: #16a34a;
+          box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.1);
         }
 
-        .catalog-search input,
+        .catalog-search input {
+          width: 100%;
+          border: 0;
+          outline: 0;
+          background: transparent;
+          color: var(--text);
+          font-size: 0.88rem;
+        }
+
+        .icon-clear {
+          width: 20px;
+          height: 20px;
+          display: grid;
+          place-items: center;
+          border: 0;
+          border-radius: 50%;
+          background: var(--border);
+          color: var(--text);
+          cursor: pointer;
+        }
+
+        .catalog-filters-row {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .filter-field {
+          height: 40px;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 0 12px;
+          border-radius: 8px;
+          background: var(--bg);
+          border: 1px solid var(--border);
+          color: var(--muted);
+          min-width: 160px;
+        }
+
+        /* Essential Option Background Fixes */
         .filter-field select {
           width: 100%;
           border: 0;
           outline: 0;
           background: transparent;
           color: var(--text);
-          font-size: 0.86rem;
-          font-weight: 760;
+          font-size: 0.85rem;
+          font-weight: 500;
+          cursor: pointer;
         }
 
-        .filter-field select {
-          cursor: pointer;
-          text-transform: capitalize;
-        }
-
-        .icon-clear {
-          width: 24px;
-          height: 24px;
-          flex-shrink: 0;
-          display: grid;
-          place-items: center;
-          border: 0;
-          border-radius: 50%;
-          background: rgba(22,163,74,0.12);
-          color: #16a34a;
-          cursor: pointer;
+        .filter-field select option {
+          background-color: var(--card, #fff);
+          color: var(--text, #000);
         }
 
         .featured-toggle,
         .reset-btn,
-        .clear-inline,
         .clear-btn-lg {
+          height: 40px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          gap: 7px;
+          gap: 8px;
+          padding: 0 16px;
           border: 1px solid var(--border);
-          border-radius: 14px;
+          border-radius: 8px;
           background: var(--bg);
           color: var(--text);
           cursor: pointer;
-          font-size: 0.82rem;
-          font-weight: 900;
-          transition: transform 0.18s, border-color 0.18s, background 0.18s;
-        }
-
-        .featured-toggle {
-          height: 46px;
-          padding: 0 15px;
+          font-size: 0.85rem;
+          font-weight: 500;
+          transition: background 0.15s, border-color 0.15s;
         }
 
         .featured-toggle:hover,
         .reset-btn:hover,
         .clear-btn-lg:hover {
-          transform: translateY(-1px);
-          border-color: rgba(22,163,74,0.34);
+          background: var(--border);
         }
 
         .featured-toggle.active {
-          background: rgba(22,163,74,0.12);
+          background: rgba(22, 163, 74, 0.08);
           color: #16a34a;
-          border-color: rgba(22,163,74,0.25);
-        }
-
-        .catalog-filters {
-          display: grid;
-          grid-template-columns: 1.1fr 0.8fr 1fr auto;
-          gap: 10px;
+          border-color: rgba(22, 163, 74, 0.25);
         }
 
         .reset-btn {
-          padding: 0 14px;
-          height: 46px;
+          margin-left: auto;
           color: #16a34a;
-          border-color: rgba(22,163,74,0.22);
-          background: rgba(22,163,74,0.08);
+          background: transparent;
+          border-color: transparent;
+        }
+        
+        .reset-btn:hover {
+          background: rgba(22, 163, 74, 0.05);
         }
 
+        /* --- CATALOG METADATA INTERFACE --- */
         .catalog-meta {
-          min-height: 24px;
           display: flex;
           align-items: center;
           justify-content: space-between;
           gap: 12px;
           color: var(--muted);
-          font-size: 0.82rem;
-          font-weight: 750;
+          font-size: 0.85rem;
         }
 
         .catalog-meta strong {
-          color: #16a34a;
-          font-weight: 950;
+          color: var(--text);
+          font-weight: 600;
         }
 
         .meta-error {
           color: #ef4444;
-          font-weight: 850;
+          font-weight: 500;
         }
 
         .clear-inline {
@@ -652,20 +638,26 @@ const Products = () => {
           background: transparent;
           color: #16a34a;
           padding: 0;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 0.85rem;
+          font-weight: 500;
         }
 
+        /* --- LOADING SKELETON INFRASTRUCTURE --- */
         .products-skeleton-grid {
           display: grid;
           grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 16px;
+          gap: 20px;
         }
 
         .product-skeleton {
-          overflow: hidden;
-          border-radius: 20px;
+          border-radius: 12px;
           background: var(--card);
           border: 1px solid var(--border);
-          padding: 14px;
+          padding: 16px;
         }
 
         .product-skeleton div,
@@ -674,110 +666,75 @@ const Products = () => {
         .product-skeleton p,
         .product-skeleton em {
           display: block;
-          border-radius: 12px;
+          border-radius: 6px;
           background: linear-gradient(
             90deg,
-            rgba(148,163,184,0.12),
-            rgba(148,163,184,0.24),
-            rgba(148,163,184,0.12)
+            rgba(148,163,184,0.08),
+            rgba(148,163,184,0.16),
+            rgba(148,163,184,0.08)
           );
           background-size: 200% 100%;
-          animation: shimmer 1.2s infinite linear;
+          animation: shimmer 1.5s infinite linear;
         }
 
-        .product-skeleton div {
-          height: 160px;
-          margin-bottom: 14px;
-        }
-
-        .product-skeleton span {
-          width: 42%;
-          height: 12px;
-          margin-bottom: 12px;
-        }
-
-        .product-skeleton strong {
-          width: 80%;
-          height: 18px;
-          margin-bottom: 10px;
-        }
-
-        .product-skeleton p {
-          width: 100%;
-          height: 42px;
-          margin-bottom: 14px;
-        }
-
-        .product-skeleton em {
-          width: 56%;
-          height: 14px;
-        }
+        .skeleton-image { height: 150px; margin-bottom: 12px; }
+        .skeleton-tag { width: 30%; height: 12px; margin-bottom: 12px; }
+        .skeleton-title { width: 70%; height: 16px; margin-bottom: 10px; }
+        .skeleton-text { width: 100%; height: 36px; margin-bottom: 12px; }
+        .skeleton-footer { width: 50%; height: 14px; }
 
         @keyframes shimmer {
-          to {
-            background-position: -200% 0;
-          }
+          to { background-position: -200% 0; }
         }
 
+        /* --- EMPTY STATE ARTIFACT --- */
         .empty-products {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 9px;
-          padding: 48px 18px;
-          border-radius: 22px;
-          background:
-            radial-gradient(circle at center, rgba(22,163,74,0.08), transparent 44%),
-            var(--card);
+          padding: 48px 24px;
+          border-radius: 12px;
+          background: var(--card);
           border: 1px solid var(--border);
           text-align: center;
-          box-shadow: var(--shadow);
         }
 
         .empty-icon {
-          width: 72px;
-          height: 72px;
+          width: 56px;
+          height: 56px;
           display: grid;
           place-items: center;
-          border-radius: 22px;
-          background: rgba(22,163,74,0.1);
+          border-radius: 10px;
+          background: rgba(22, 163, 74, 0.05);
           color: #16a34a;
-          border: 1px solid rgba(22,163,74,0.18);
-          margin-bottom: 4px;
+          margin-bottom: 12px;
         }
 
         .empty-products h3 {
-          margin: 0;
+          margin: 0 0 6px;
           color: var(--text);
-          font-size: 1.2rem;
-          letter-spacing: -0.035em;
-          font-weight: 950;
+          font-size: 1.1rem;
+          font-weight: 600;
         }
 
         .empty-products p {
-          max-width: 430px;
-          margin: 0;
+          max-width: 360px;
+          margin: 0 0 16px;
           color: var(--muted);
           font-size: 0.88rem;
-          line-height: 1.55;
-          font-weight: 650;
+          line-height: 1.45;
         }
 
-        .clear-btn-lg {
-          margin-top: 8px;
-          padding: 10px 16px;
-          background: rgba(22,163,74,0.1);
-          color: #16a34a;
-          border-color: rgba(22,163,74,0.24);
-        }
-
-        @media (max-width: 980px) {
+        /* --- RESPONSIVE STRUCTURAL MEDIA QUERIES --- */
+        @media (max-width: 960px) {
           .products-hero {
-            grid-template-columns: 1fr;
+            flex-direction: column;
+            align-items: stretch;
+            padding: 24px;
           }
 
           .products-stats {
-            max-width: 420px;
+            min-width: 100%;
           }
 
           .products-skeleton-grid {
@@ -785,49 +742,31 @@ const Products = () => {
           }
         }
 
-        @media (max-width: 760px) {
-          .products-page {
-            padding-top: 10px;
-          }
-
-          .products-hero {
-            padding: 20px;
-            border-radius: 22px;
-          }
-
+        @media (max-width: 640px) {
           .products-hero h1 {
-            font-size: clamp(2.1rem, 11vw, 3rem);
+            font-size: 1.75rem;
           }
 
-          .hero-pills {
-            gap: 7px;
-          }
-
-          .hero-pills span {
-            width: 100%;
-          }
-
-          .catalog-top,
-          .catalog-filters {
+          .catalog-controls-row {
             grid-template-columns: 1fr;
           }
 
-          .featured-toggle,
-          .reset-btn {
-            width: 100%;
+          .catalog-filters-row {
+            display: grid;
+            grid-template-columns: 1fr;
           }
 
-          .catalog-meta {
-            flex-direction: column;
-            align-items: flex-start;
+          .filter-field {
+            min-width: 100%;
+          }
+
+          .reset-btn {
+            margin-left: 0;
+            width: 100%;
           }
 
           .products-skeleton-grid {
             grid-template-columns: 1fr;
-          }
-
-          .mini-stats {
-            grid-template-columns: repeat(3, 1fr);
           }
         }
       `}</style>
