@@ -6,12 +6,16 @@ import {
   ReceiptText,
   RefreshCw,
   Search,
+  Trash2,
   TrendingUp,
   XCircle,
 } from "lucide-react";
 import OrdersTable from "../components/admin/OrdersTable";
-import { getAdminOrders } from "../services/adminApi";
-import Button from "../components/common/Button";
+import {
+  getAdminOrders,
+  deleteAdminOrder,
+  clearAdminOrders,
+} from "../services/adminApi";
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -31,12 +35,40 @@ const AdminOrders = () => {
     }
   };
 
+  const handleDeleteOrder = async (id) => {
+    const confirmed = window.confirm("Delete this order permanently?");
+    if (!confirmed) return;
+
+    try {
+      await deleteAdminOrder(id);
+      await load();
+    } catch {
+      setStatus("Failed to delete order.");
+    }
+  };
+
+  const handleClearOrders = async () => {
+    const confirmed = window.confirm(
+      "Delete ALL orders permanently? This cannot be undone."
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await clearAdminOrders();
+      await load();
+    } catch {
+      setStatus("Failed to clear orders.");
+    }
+  };
+
   useEffect(() => {
     load();
   }, []);
 
   const stats = useMemo(() => {
     const paid = orders.filter((o) => o.status === "PAID");
+
     return {
       total: orders.length,
       paid: paid.length,
@@ -48,14 +80,26 @@ const AdminOrders = () => {
 
   const filteredOrders = useMemo(() => {
     const clean = query.toLowerCase().trim();
+
     return orders
       .filter((o) => filter === "ALL" || o.status === filter)
       .filter((o) => {
         if (!clean) return true;
+
         const email = o.user?.email?.toLowerCase() || "";
         const s = o.status?.toLowerCase() || "";
-        const products = o.items?.map((i) => i.product?.title).filter(Boolean).join(" ").toLowerCase() || "";
-        return email.includes(clean) || s.includes(clean) || products.includes(clean);
+        const products =
+          o.items
+            ?.map((i) => i.product?.title)
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase() || "";
+
+        return (
+          email.includes(clean) ||
+          s.includes(clean) ||
+          products.includes(clean)
+        );
       });
   }, [orders, query, filter]);
 
@@ -70,36 +114,90 @@ const AdminOrders = () => {
     <section className="admin-orders-page">
       <header className="admin-orders-header">
         <div>
-          <p className="eyebrow"><ReceiptText size={13} /> Admin Orders</p>
-          <h1>Customer <span>Orders</span></h1>
-          <p>Track payment status, purchased products, and customer order history from one clean admin view.</p>
+          <p className="eyebrow">
+            <ReceiptText size={13} />
+            Admin Orders
+          </p>
+
+          <h1>
+            Customer <span>Orders</span>
+          </h1>
+
+          <p>
+            Track payment status, purchased products, and customer order history
+            from one clean admin view.
+          </p>
         </div>
+
         <div className="header-summary">
           <div className="summary-card">
             <TrendingUp size={16} className="summary-icon" />
+
             <div>
               <strong>₹{stats.revenue.toLocaleString("en-IN")}</strong>
               <span>Paid Revenue</span>
             </div>
           </div>
-          <button type="button" className="header-btn" onClick={load}>
-            <RefreshCw size={14} /> Refresh
-          </button>
+
+          <div className="header-actions">
+            <button
+              type="button"
+              className="header-btn danger"
+              onClick={handleClearOrders}
+            >
+              <Trash2 size={14} />
+              Clear Orders
+            </button>
+
+            <button type="button" className="header-btn" onClick={load}>
+              <RefreshCw size={14} />
+              Refresh
+            </button>
+          </div>
         </div>
       </header>
 
       <div className="orders-stats-row">
         {[
-          { label: "Total Orders", value: stats.total, icon: ReceiptText, tone: "green" },
-          { label: "Paid", value: stats.paid, icon: CheckCircle2, tone: "green" },
-          { label: "Pending", value: stats.pending, icon: Clock, tone: "gold" },
-          { label: "Failed", value: stats.failed, icon: XCircle, tone: "red" },
-          { label: "Revenue", value: `₹${stats.revenue.toLocaleString("en-IN")}`, icon: IndianRupee, tone: "green" },
+          {
+            label: "Total Orders",
+            value: stats.total,
+            icon: ReceiptText,
+            tone: "green",
+          },
+          {
+            label: "Paid",
+            value: stats.paid,
+            icon: CheckCircle2,
+            tone: "green",
+          },
+          {
+            label: "Pending",
+            value: stats.pending,
+            icon: Clock,
+            tone: "gold",
+          },
+          {
+            label: "Failed",
+            value: stats.failed,
+            icon: XCircle,
+            tone: "red",
+          },
+          {
+            label: "Revenue",
+            value: `₹${stats.revenue.toLocaleString("en-IN")}`,
+            icon: IndianRupee,
+            tone: "green",
+          },
         ].map((s) => {
           const Icon = s.icon;
+
           return (
             <div key={s.label} className="orders-stat-card">
-              <div className={`orders-stat-icon ${s.tone}`}><Icon size={16} /></div>
+              <div className={`orders-stat-icon ${s.tone}`}>
+                <Icon size={16} />
+              </div>
+
               <div>
                 <p className="orders-stat-label">{s.label}</p>
                 <p className="orders-stat-val">{s.value}</p>
@@ -123,8 +221,10 @@ const AdminOrders = () => {
             </button>
           ))}
         </div>
+
         <div className="orders-search">
           <Search size={15} />
+
           <input
             type="text"
             placeholder="Search by email, status, product…"
@@ -136,7 +236,12 @@ const AdminOrders = () => {
 
       {status && <p className="admin-orders-status">{status}</p>}
 
-      {!status && <OrdersTable orders={filteredOrders} />}
+      {!status && (
+        <OrdersTable
+          orders={filteredOrders}
+          onDeleteOrder={handleDeleteOrder}
+        />
+      )}
 
       <style>{`
         * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
@@ -211,6 +316,14 @@ const AdminOrders = () => {
           gap: 8px;
         }
 
+        .header-actions {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-wrap: wrap;
+          justify-content: flex-end;
+        }
+
         .summary-card {
           display: flex;
           align-items: center;
@@ -245,6 +358,7 @@ const AdminOrders = () => {
         .header-btn {
           display: inline-flex;
           align-items: center;
+          justify-content: center;
           gap: 6px;
           padding: 8px 14px;
           font-size: 0.78rem;
@@ -255,6 +369,23 @@ const AdminOrders = () => {
           color: var(--text);
           cursor: pointer;
           font-weight: 850;
+          transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+        }
+
+        .header-btn:hover {
+          transform: translateY(-1px);
+          border-color: rgba(22, 163, 74, 0.35);
+        }
+
+        .header-btn.danger {
+          color: #dc2626;
+          border-color: rgba(220, 38, 38, 0.22);
+          background: rgba(220, 38, 38, 0.08);
+        }
+
+        .header-btn.danger:hover {
+          border-color: rgba(220, 38, 38, 0.35);
+          background: rgba(220, 38, 38, 0.14);
         }
 
         .orders-stats-row {
@@ -282,9 +413,20 @@ const AdminOrders = () => {
           flex-shrink: 0;
         }
 
-        .orders-stat-icon.green { background: rgba(22,163,74,0.12); color: #16a34a; }
-        .orders-stat-icon.gold  { background: rgba(214,179,0,0.14); color: #b89400; }
-        .orders-stat-icon.red   { background: rgba(239,68,68,0.12); color: #ef4444; }
+        .orders-stat-icon.green {
+          background: rgba(22,163,74,0.12);
+          color: #16a34a;
+        }
+
+        .orders-stat-icon.gold {
+          background: rgba(214,179,0,0.14);
+          color: #b89400;
+        }
+
+        .orders-stat-icon.red {
+          background: rgba(239,68,68,0.12);
+          color: #ef4444;
+        }
 
         .orders-stat-label {
           margin: 0;
@@ -392,18 +534,49 @@ const AdminOrders = () => {
         }
 
         @media (max-width: 1050px) {
-          .orders-stats-row { grid-template-columns: repeat(3, 1fr); }
+          .orders-stats-row {
+            grid-template-columns: repeat(3, 1fr);
+          }
         }
 
         @media (max-width: 760px) {
-          .admin-orders-header { grid-template-columns: 1fr; padding: 18px; }
-          .header-summary { align-items: flex-start; }
-          .summary-card { width: 100%; }
-          .header-btn { width: 100%; justify-content: center; }
-          .orders-stats-row { grid-template-columns: repeat(2, 1fr); }
-          .orders-toolbar { flex-direction: column; align-items: stretch; }
-          .filter-tabs { overflow-x: auto; }
-          .orders-search { min-width: 100%; }
+          .admin-orders-header {
+            grid-template-columns: 1fr;
+            padding: 18px;
+          }
+
+          .header-summary {
+            align-items: flex-start;
+          }
+
+          .header-actions {
+            width: 100%;
+          }
+
+          .summary-card {
+            width: 100%;
+          }
+
+          .header-btn {
+            flex: 1;
+          }
+
+          .orders-stats-row {
+            grid-template-columns: repeat(2, 1fr);
+          }
+
+          .orders-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+          }
+
+          .filter-tabs {
+            overflow-x: auto;
+          }
+
+          .orders-search {
+            min-width: 100%;
+          }
         }
       `}</style>
     </section>

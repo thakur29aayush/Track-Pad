@@ -1,4 +1,6 @@
-const OrdersTable = ({ orders = [] }) => {
+import { Trash2 } from "lucide-react";
+
+const OrdersTable = ({ orders = [], onDeleteOrder }) => {
   const statusClass = (status) => String(status || "").toLowerCase();
 
   const formatAmount = (amount) => {
@@ -54,6 +56,7 @@ const OrdersTable = ({ orders = [] }) => {
               <th>Amount</th>
               <th>Status</th>
               <th>Products</th>
+              <th>Action</th>
             </tr>
           </thead>
 
@@ -87,6 +90,17 @@ const OrdersTable = ({ orders = [] }) => {
 
                   <td>
                     <span className="table-products">{products}</span>
+                  </td>
+
+                  <td>
+                    <button
+                      type="button"
+                      className="delete-order-btn"
+                      onClick={() => onDeleteOrder?.(order.id)}
+                    >
+                      <Trash2 size={14} />
+                      Delete
+                    </button>
                   </td>
                 </tr>
               );
@@ -132,7 +146,7 @@ const OrdersTable = ({ orders = [] }) => {
 
         .admin-table-card table {
           width: 100%;
-          min-width: 720px;
+          min-width: 820px;
           border-collapse: collapse;
         }
 
@@ -157,10 +171,6 @@ const OrdersTable = ({ orders = [] }) => {
 
         .admin-table-card tr:last-child td {
           border-bottom: none;
-        }
-
-        .admin-table-card tbody tr {
-          transition: background 0.18s ease;
         }
 
         .admin-table-card tbody tr:hover {
@@ -228,6 +238,20 @@ const OrdersTable = ({ orders = [] }) => {
           color: var(--danger);
           border-color: rgba(220, 38, 38, 0.22);
           background: rgba(220, 38, 38, 0.08);
+        }
+
+        .delete-order-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 7px 10px;
+          border-radius: 999px;
+          border: 1px solid rgba(220, 38, 38, 0.22);
+          background: rgba(220, 38, 38, 0.08);
+          color: var(--danger);
+          font-size: 0.72rem;
+          font-weight: 900;
+          cursor: pointer;
         }
 
         @media (max-width: 640px) {

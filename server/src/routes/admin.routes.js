@@ -21,6 +21,8 @@ const {
 const {
   getAdminStats,
   getAdminOrders,
+  deleteAdminOrder,
+  clearAdminOrders,
 } = require("../controllers/admin.controller");
 
 const {
@@ -35,6 +37,8 @@ router.use(adminMiddleware);
 
 router.get("/stats", getAdminStats);
 router.get("/orders", getAdminOrders);
+router.delete("/orders/:id", deleteAdminOrder);
+router.delete("/orders", clearAdminOrders);
 
 router.get("/users", getAdminUsers);
 router.put("/users/:id", updateAdminUser);

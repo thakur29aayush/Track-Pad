@@ -64,3 +64,13 @@ export const createCounsellingBooking = async (payload) => {
   const res = await api.post("/counselling/book", payload);
   return res.data.booking;
 };
+
+export const deleteAdminOrder = async (id) => {
+  const res = await api.delete(`/admin/orders/${id}`);
+  return res.data;
+};
+
+export const clearAdminOrders = async () => {
+  const res = await api.delete("/admin/orders");
+  return res.data;
+};

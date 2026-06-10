@@ -2,16 +2,16 @@ const prisma = require("../config/prisma");
 
 async function getAdminStats(req, res, next) {
   try {
-  const [users, products, orders, bookings] = await Promise.all([
-  prisma.user.count(),
-  prisma.product.count({
-    where: {
-      isActive: true,
-    },
-  }),
-  prisma.order.count(),
-  prisma.counsellingBooking.count(),
-]);
+    const [users, products, orders, bookings] = await Promise.all([
+      prisma.user.count(),
+      prisma.product.count({
+        where: {
+          isActive: true,
+        },
+      }),
+      prisma.order.count(),
+      prisma.counsellingBooking.count(),
+    ]);
 
     res.json({
       stats: {
@@ -48,6 +48,38 @@ async function getAdminOrders(req, res, next) {
   }
 }
 
+async function deleteAdminOrder(req, res, next) {
+  try {
+    const { id } = req.params;
+
+    await prisma.order.delete({
+      where: {
+        id,
+      },
+    });
+
+    res.json({
+      success: true,
+      message: "Order deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function clearAdminOrders(req, res, next) {
+  try {
+    await prisma.order.deleteMany({});
+
+    res.json({
+      success: true,
+      message: "All orders deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function getAdminUsers(req, res, next) {
   try {
     const users = await prisma.user.findMany({
@@ -65,5 +97,7 @@ async function getAdminUsers(req, res, next) {
 module.exports = {
   getAdminStats,
   getAdminOrders,
+  deleteAdminOrder,
+  clearAdminOrders,
   getAdminUsers,
 };
