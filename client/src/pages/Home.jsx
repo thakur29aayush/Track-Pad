@@ -10,38 +10,31 @@ import {
 } from "lucide-react";
 import Button from "../components/common/Button";
 
-const heroWords = [
-  "Build",
-  "better",
-  "habits",
-  "with",
-  "templates,",
-  "trackers,",
-  "and",
-  "guidance.",
-];
+const heroText = "Build better habits with templates, trackers, and guidance.";
 
 const Home = () => {
-  const [visibleWords, setVisibleWords] = useState([]);
+  const [typedText, setTypedText] = useState("");
+  const [isTypingDone, setIsTypingDone] = useState(false);
 
   useEffect(() => {
     let index = 0;
 
     const interval = setInterval(() => {
-      setVisibleWords((prev) => {
-        if (index >= heroWords.length) {
-          clearInterval(interval);
-          return prev;
-        }
+      if (index >= heroText.length) {
+        clearInterval(interval);
+        setIsTypingDone(true);
+        return;
+      }
 
-        const next = [...prev, heroWords[index]];
-        index += 1;
-        return next;
-      });
-    }, 260);
+      setTypedText(heroText.slice(0, index + 1));
+      index += 1;
+    }, 42);
 
     return () => clearInterval(interval);
   }, []);
+
+  const normalText = typedText.slice(0, 25);
+  const gradientText = typedText.slice(25);
 
   return (
     <section className="home-page">
@@ -52,18 +45,10 @@ const Home = () => {
             Digital tools for better living
           </span>
 
-          <h1 className="typing-title" aria-label={heroWords.join(" ")}>
-            {visibleWords.map((word, index) => (
-              <span
-                key={`${word}-${index}`}
-                className={
-                  index >= 4 ? "typing-word gradient-word" : "typing-word"
-                }
-              >
-                {word}
-              </span>
-            ))}
-            <span className="typing-cursor" />
+          <h1 className="typing-title" aria-label={heroText}>
+            {normalText}
+            <span className="gradient-word">{gradientText}</span>
+            {!isTypingDone && <span className="typing-cursor" />}
           </h1>
 
           <p>
@@ -196,14 +181,6 @@ const Home = () => {
           font-weight: 950;
         }
 
-        .typing-word {
-          display: inline-block;
-          margin-right: 0.24em;
-          opacity: 0;
-          transform: translateY(10px);
-          animation: wordReveal 0.32s ease forwards;
-        }
-
         .gradient-word {
           background: linear-gradient(120deg, #f5d800, #22c55e 58%, #d9a900);
           -webkit-background-clip: text;
@@ -219,13 +196,6 @@ const Home = () => {
           background: #22c55e;
           animation: cursorBlink 0.85s infinite;
           transform: translateY(0.08em);
-        }
-
-        @keyframes wordReveal {
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
         }
 
         @keyframes cursorBlink {
