@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -9,7 +10,39 @@ import {
 } from "lucide-react";
 import Button from "../components/common/Button";
 
+const heroWords = [
+  "Build",
+  "better",
+  "habits",
+  "with",
+  "templates,",
+  "trackers,",
+  "and",
+  "guidance.",
+];
+
 const Home = () => {
+  const [visibleWords, setVisibleWords] = useState([]);
+
+  useEffect(() => {
+    let index = 0;
+
+    const interval = setInterval(() => {
+      setVisibleWords((prev) => {
+        if (index >= heroWords.length) {
+          clearInterval(interval);
+          return prev;
+        }
+
+        const next = [...prev, heroWords[index]];
+        index += 1;
+        return next;
+      });
+    }, 260);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <section className="home-page">
       <div className="home-hero">
@@ -19,9 +52,18 @@ const Home = () => {
             Digital tools for better living
           </span>
 
-          <h1>
-            Build better habits with{" "}
-            <span>templates, trackers, and guidance.</span>
+          <h1 className="typing-title" aria-label={heroWords.join(" ")}>
+            {visibleWords.map((word, index) => (
+              <span
+                key={`${word}-${index}`}
+                className={
+                  index >= 4 ? "typing-word gradient-word" : "typing-word"
+                }
+              >
+                {word}
+              </span>
+            ))}
+            <span className="typing-cursor" />
           </h1>
 
           <p>
@@ -63,7 +105,7 @@ const Home = () => {
               </div>
 
               <div className="icon-box">
-                <Target size={18} />
+                <Target size={22} />
               </div>
             </div>
 
@@ -80,15 +122,15 @@ const Home = () => {
 
             <div className="preview-list">
               <div>
-                <CheckCircle2 size={14} />
+                <CheckCircle2 size={15} />
                 Self improvement
               </div>
               <div>
-                <CheckCircle2 size={14} />
+                <CheckCircle2 size={15} />
                 High motivation
               </div>
               <div>
-                <CheckCircle2 size={14} />
+                <CheckCircle2 size={15} />
                 30 days challenge
               </div>
             </div>
@@ -121,11 +163,11 @@ const Home = () => {
         }
 
         .home-hero {
-          min-height: calc(100vh - 230px);
+          min-height: calc(100vh - 220px);
           display: grid;
-          grid-template-columns: 1.08fr 0.92fr;
+          grid-template-columns: 1.05fr 0.95fr;
           align-items: center;
-          gap: 30px;
+          gap: 38px;
         }
 
         .hero-copy {
@@ -144,19 +186,55 @@ const Home = () => {
           border: 1px solid rgba(34, 197, 94, 0.2);
         }
 
-        .hero-copy h1 {
+        .typing-title {
           margin: 0;
-          max-width: 610px;
-          font-size: clamp(2.25rem, 4.8vw, 4.35rem);
+          max-width: 660px;
+          min-height: 2.08em;
+          font-size: clamp(2.35rem, 5vw, 4.75rem);
           line-height: 0.98;
           letter-spacing: -0.06em;
           font-weight: 950;
         }
 
-        .hero-copy h1 span {
+        .typing-word {
+          display: inline-block;
+          margin-right: 0.24em;
+          opacity: 0;
+          transform: translateY(10px);
+          animation: wordReveal 0.32s ease forwards;
+        }
+
+        .gradient-word {
           background: linear-gradient(120deg, #f5d800, #22c55e 58%, #d9a900);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
+        }
+
+        .typing-cursor {
+          display: inline-block;
+          width: 0.08em;
+          height: 0.78em;
+          margin-left: 3px;
+          border-radius: 99px;
+          background: #22c55e;
+          animation: cursorBlink 0.85s infinite;
+          transform: translateY(0.08em);
+        }
+
+        @keyframes wordReveal {
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes cursorBlink {
+          0%, 45% {
+            opacity: 1;
+          }
+          46%, 100% {
+            opacity: 0;
+          }
         }
 
         .hero-copy p {
@@ -208,7 +286,7 @@ const Home = () => {
 
         .hero-card {
           position: relative;
-          min-height: 350px;
+          min-height: 420px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -217,27 +295,27 @@ const Home = () => {
         .hero-card::before {
           content: "";
           position: absolute;
-          width: 245px;
-          height: 245px;
+          width: 310px;
+          height: 310px;
           border-radius: 999px;
           background:
-            radial-gradient(circle, rgba(34, 197, 94, 0.22), transparent 62%),
-            radial-gradient(circle at 70% 30%, rgba(245, 216, 0, 0.18), transparent 48%);
-          filter: blur(10px);
-          opacity: 0.8;
+            radial-gradient(circle, rgba(34, 197, 94, 0.28), transparent 62%),
+            radial-gradient(circle at 70% 30%, rgba(245, 216, 0, 0.22), transparent 48%);
+          filter: blur(8px);
+          opacity: 0.85;
         }
 
         .dashboard-preview {
           position: relative;
           z-index: 2;
-          width: min(400px, 100%);
-          border-radius: 22px;
-          padding: 18px;
+          width: min(480px, 100%);
+          border-radius: 26px;
+          padding: 22px;
           background:
-            linear-gradient(145deg, rgba(255,255,255,0.075), rgba(255,255,255,0.02)),
+            linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)),
             var(--card);
-          border: 1px solid rgba(34, 197, 94, 0.18);
-          box-shadow: 0 18px 48px rgba(0, 0, 0, 0.18);
+          border: 1px solid rgba(34, 197, 94, 0.2);
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
           overflow: hidden;
         }
 
@@ -246,10 +324,10 @@ const Home = () => {
           position: absolute;
           top: -70px;
           right: -70px;
-          width: 150px;
-          height: 150px;
+          width: 170px;
+          height: 170px;
           border-radius: 999px;
-          background: rgba(245, 216, 0, 0.14);
+          background: rgba(245, 216, 0, 0.16);
           filter: blur(10px);
         }
 
@@ -258,31 +336,31 @@ const Home = () => {
           display: flex;
           align-items: flex-start;
           justify-content: space-between;
-          gap: 12px;
+          gap: 14px;
         }
 
         .mini-label {
           color: #22c55e;
-          font-size: 0.66rem;
+          font-size: 0.72rem;
           font-weight: 900;
           text-transform: uppercase;
-          letter-spacing: 0.12em;
+          letter-spacing: 0.11em;
         }
 
         .preview-header h3 {
-          margin: 5px 0 0;
-          font-size: 1.28rem;
-          letter-spacing: -0.04em;
+          margin: 6px 0 0;
+          font-size: 1.55rem;
+          letter-spacing: -0.045em;
         }
 
         .icon-box,
         .feature-icon {
-          width: 36px;
-          height: 36px;
+          width: 40px;
+          height: 40px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          border-radius: 12px;
+          border-radius: 14px;
           color: #22c55e;
           background: rgba(34, 197, 94, 0.1);
           border: 1px solid rgba(34, 197, 94, 0.16);
@@ -290,26 +368,26 @@ const Home = () => {
         }
 
         .progress-block {
-          margin-top: 20px;
-          padding: 12px;
-          border-radius: 16px;
-          background: rgba(34, 197, 94, 0.075);
-          border: 1px solid rgba(34, 197, 94, 0.14);
+          margin-top: 24px;
+          padding: 14px;
+          border-radius: 18px;
+          background: rgba(34, 197, 94, 0.08);
+          border: 1px solid rgba(34, 197, 94, 0.16);
         }
 
         .progress-row {
           display: flex;
           justify-content: space-between;
           color: var(--text);
-          font-size: 0.82rem;
+          font-size: 0.9rem;
           font-weight: 800;
         }
 
         .progress-track {
-          height: 7px;
-          margin-top: 10px;
+          height: 8px;
+          margin-top: 11px;
           border-radius: 99px;
-          background: rgba(34, 197, 94, 0.13);
+          background: rgba(34, 197, 94, 0.14);
           overflow: hidden;
         }
 
@@ -320,21 +398,21 @@ const Home = () => {
         }
 
         .preview-list {
-          margin-top: 14px;
+          margin-top: 16px;
           display: grid;
-          gap: 8px;
+          gap: 9px;
         }
 
         .preview-list div {
           display: flex;
           align-items: center;
           gap: 8px;
-          padding: 9px 10px;
-          border-radius: 13px;
+          padding: 10px 12px;
+          border-radius: 14px;
           color: var(--muted);
-          background: rgba(255, 255, 255, 0.032);
-          border: 1px solid rgba(34, 197, 94, 0.11);
-          font-size: 0.8rem;
+          background: rgba(255, 255, 255, 0.035);
+          border: 1px solid rgba(34, 197, 94, 0.12);
+          font-size: 0.86rem;
           font-weight: 700;
         }
 
@@ -387,13 +465,13 @@ const Home = () => {
         @media (max-width: 920px) {
           .home-hero {
             grid-template-columns: 1fr;
-            gap: 22px;
+            gap: 24px;
             min-height: auto;
             padding-top: 22px;
           }
 
           .hero-card {
-            min-height: 310px;
+            min-height: 360px;
           }
 
           .home-features {
@@ -407,7 +485,8 @@ const Home = () => {
             padding: 4px 0 34px;
           }
 
-          .hero-copy h1 {
+          .typing-title {
+            min-height: 2.55em;
             font-size: clamp(2.1rem, 11vw, 3.25rem);
           }
 
@@ -417,12 +496,12 @@ const Home = () => {
 
           .dashboard-preview {
             width: 100%;
-            padding: 16px;
-            border-radius: 20px;
+            padding: 18px;
+            border-radius: 22px;
           }
 
           .hero-card {
-            min-height: 280px;
+            min-height: 320px;
           }
 
           .home-page .actions {
