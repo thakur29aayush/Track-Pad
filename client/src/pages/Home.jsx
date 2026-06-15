@@ -28,7 +28,7 @@ const Home = () => {
 
       setTypedText(heroText.slice(0, index + 1));
       index += 1;
-    }, 42);
+    }, 80);
 
     return () => clearInterval(interval);
   }, []);
