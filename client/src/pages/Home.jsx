@@ -457,7 +457,7 @@ const Home = () => {
 
           .typing-title {
             min-height: 2.55em;
-            font-size: clamp(2.1rem, 11vw, 3.25rem);
+            font-size: clamp(2rem, 4vw, 3.8rem);
           }
 
           .hero-copy p {
