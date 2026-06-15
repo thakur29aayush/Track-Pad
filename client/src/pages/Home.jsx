@@ -12,7 +12,9 @@ import {
   Users,
   BarChart3,
   BookOpen,
-  Zap
+  Zap,
+  Activity,
+  Flame
 } from "lucide-react";
 import Button from "../components/common/Button";
 
@@ -80,42 +82,67 @@ const Home = () => {
             <div className="preview-header">
               <div>
                 <span className="mini-label">
-                  <BarChart3 size={12} />
+                  <Activity size={12} />
                   Growth Dashboard
                 </span>
                 <h3>Today’s Focus</h3>
               </div>
-              <Target size={22} />
+              <div className="header-icon-wrapper">
+                <Target size={20} className="header-icon" />
+              </div>
+            </div>
+
+            {/* Stats Overview */}
+            <div className="stats-overview">
+              <div className="stat-item">
+                <div className="stat-icon">
+                  <Flame size={16} />
+                </div>
+                <div className="stat-info">
+                  <span className="stat-value">99%</span>
+                  <span className="stat-label">Habit Completion</span>
+                </div>
+              </div>
+              <div className="stat-item">
+                <div className="stat-icon">
+                  <TrendingUp size={16} />
+                </div>
+                <div className="stat-info">
+                  <span className="stat-value">7 Days</span>
+                  <span className="stat-label">Streak</span>
+                </div>
+              </div>
             </div>
 
             {/* Progress Block */}
             <div className="progress-block">
-              <div className="progress-row">
+              <div className="progress-header">
                 <span>
                   <CheckCircle2 size={14} />
-                  HABIT TRACKER
+                  Habit Tracker
                 </span>
-                <strong>99% <TrendingUp size={12} className="trending-icon" /></strong>
+                <span className="progress-percentage">
+                  99% <Flame size={12} className="fire-icon" />
+                </span>
               </div>
               <div className="progress-track">
-                <div style={{ width: "99%" }} />
+                <div className="progress-fill" style={{ width: "99%" }} />
               </div>
-              <p className="progress-subtext">Consistency is key</p>
             </div>
 
             {/* Preview List */}
             <div className="preview-list">
-              <div>
-                <CheckCircle2 size={15} />
-                <span>SELF IMPROVEMENT</span>
+              <div className="list-item">
+                <CheckCircle2 size={14} className="list-icon" />
+                <span>Self Improvement</span>
               </div>
-              <div>
-                <CheckCircle2 size={15} />
-                <span>HIGH MOTIVATION</span>
+              <div className="list-item">
+                <CheckCircle2 size={14} className="list-icon" />
+                <span>High Motivation</span>
               </div>
-              <div>
-                <CheckCircle2 size={15} />
-                <span>30 DAYS CHALLENGE</span>
+              <div className="list-item">
+                <CheckCircle2 size={14} className="list-icon" />
+                <span>30 Days Challenge</span>
               </div>
             </div>
 
@@ -182,6 +209,8 @@ const Home = () => {
         .home-page {
           padding: 1rem 0 3rem;
           font-family: "Inter", "Syne", "DM Sans", system-ui, sans-serif;
+          color: var(--text-light, var(--text-dark));
+          background: var(--card-light, var(--card-dark));
         }
 
         .home-hero {
@@ -214,6 +243,10 @@ const Home = () => {
           background: rgba(34, 197, 94, 0.05);
         }
 
+        .hero-badge svg {
+          color: var(--primary);
+        }
+
         .hero-copy h1 {
           margin: 0;
           max-width: 600px;
@@ -235,6 +268,7 @@ const Home = () => {
           max-width: 550px;
           font-size: 1rem;
           line-height: 1.6;
+          color: var(--muted-light, var(--muted-dark));
         }
 
         .actions {
@@ -256,11 +290,24 @@ const Home = () => {
           border-radius: 0.5rem;
           box-shadow: 0 8px 20px rgba(34, 197, 94, 0.15);
           transition: all 0.2s ease;
+          color: white;
+          background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+          border: none;
         }
 
         .home-page .btn:hover {
           transform: translateY(-2px);
           box-shadow: 0 10px 24px rgba(34, 197, 94, 0.2);
+        }
+
+        .home-page .btn[variant="outline"] {
+          background: transparent;
+          border: 1px solid var(--primary);
+          color: var(--primary);
+        }
+
+        .home-page .btn[variant="outline"]:hover {
+          background: rgba(34, 197, 94, 0.1);
         }
 
         .hero-trust {
@@ -270,6 +317,7 @@ const Home = () => {
           margin-top: 1.5rem;
           font-size: 0.875rem;
           font-weight: 600;
+          color: var(--muted-light, var(--muted-dark));
         }
 
         .hero-trust span {
@@ -309,7 +357,7 @@ const Home = () => {
           z-index: 2;
           width: min(450px, 100%);
           border-radius: 1.25rem;
-          padding: 1.25rem;
+          padding: 1.5rem;
           background: var(--card-light, var(--card-dark));
           border: 1px solid rgba(34, 197, 94, 0.2);
           box-shadow: var(--shadow-lg-light, var(--shadow-lg-dark));
@@ -339,6 +387,7 @@ const Home = () => {
           align-items: flex-start;
           justify-content: space-between;
           gap: 1rem;
+          margin-bottom: 1rem;
         }
 
         .mini-label {
@@ -352,67 +401,133 @@ const Home = () => {
           letter-spacing: 0.1em;
         }
 
+        .mini-label svg {
+          color: var(--primary);
+        }
+
         .preview-header h3 {
           margin: 0.5rem 0 0;
           font-size: 1.4rem;
           letter-spacing: -0.03em;
+          color: var(--text-light, var(--text-dark));
         }
 
-        .preview-header svg {
+        .header-icon-wrapper {
+          background: rgba(245, 216, 0, 0.1);
+          padding: 0.5rem;
+          border-radius: 0.5rem;
+        }
+
+        .header-icon {
           color: var(--secondary);
         }
 
+        /* Stats Overview */
+        .stats-overview {
+          display: flex;
+          gap: 1rem;
+          margin-bottom: 1rem;
+        }
+
+        .stat-item {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 0.75rem;
+          border-radius: 0.75rem;
+          background: rgba(34, 197, 94, 0.05);
+          border: 1px solid rgba(34, 197, 94, 0.1);
+          flex: 1;
+        }
+
+        .stat-icon {
+          width: 2rem;
+          height: 2rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 0.5rem;
+          background: rgba(34, 197, 94, 0.1);
+          color: var(--primary);
+        }
+
+        .stat-info {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .stat-value {
+          font-size: 1.125rem;
+          font-weight: 800;
+          color: var(--text-light, var(--text-dark));
+        }
+
+        .stat-label {
+          font-size: 0.75rem;
+          color: var(--muted-light, var(--muted-dark));
+          font-weight: 500;
+        }
+
+        /* Progress Block */
         .progress-block {
-          margin-top: 1.25rem;
+          margin-bottom: 1rem;
           padding: 1rem;
-          border-radius: 1rem;
+          border-radius: 0.75rem;
           background: rgba(34, 197, 94, 0.08);
           border: 1px solid rgba(34, 197, 94, 0.15);
         }
 
-        .progress-row {
+        .progress-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          color: var(--text-light, var(--text-dark));
-          font-size: 0.875rem;
-          font-weight: 700;
+          margin-bottom: 0.75rem;
         }
 
-        .trending-icon {
+        .progress-header span {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.875rem;
+          font-weight: 700;
+          color: var(--text-light, var(--text-dark));
+        }
+
+        .progress-header svg {
+          color: var(--primary);
+        }
+
+        .progress-percentage {
+          font-weight: 800;
+          color: var(--primary);
+        }
+
+        .fire-icon {
           color: var(--secondary);
           vertical-align: middle;
         }
 
         .progress-track {
-          height: 0.4rem;
-          margin-top: 0.75rem;
+          height: 0.5rem;
           border-radius: 9999px;
           background: rgba(34, 197, 94, 0.12);
           overflow: hidden;
         }
 
-        .progress-track div {
+        .progress-fill {
           height: 100%;
           border-radius: inherit;
           background: linear-gradient(90deg, var(--primary), var(--secondary));
           transition: width 0.5s ease;
         }
 
-        .progress-subtext {
-          margin-top: 0.5rem;
-          font-size: 0.75rem;
-          color: var(--muted-light, var(--muted-dark));
-          font-weight: 500;
-        }
-
+        /* Preview List */
         .preview-list {
-          margin-top: 1rem;
           display: grid;
-          gap: 0.625rem;
+          gap: 0.5rem;
         }
 
-        .preview-list div {
+        .list-item {
           display: flex;
           align-items: center;
           gap: 0.75rem;
@@ -422,19 +537,21 @@ const Home = () => {
           border: 1px solid rgba(34, 197, 94, 0.1);
           font-size: 0.8rem;
           font-weight: 600;
+          color: var(--text-light, var(--text-dark));
           transition: all 0.2s ease;
         }
 
-        .preview-list div:hover {
+        .list-item:hover {
           background: rgba(34, 197, 94, 0.05);
           border-color: rgba(34, 197, 94, 0.2);
         }
 
-        .preview-list svg {
+        .list-icon {
           color: var(--primary);
           flex-shrink: 0;
         }
 
+        /* Floating Pills */
         .floating-pill {
           position: absolute;
           z-index: 3;
@@ -448,6 +565,7 @@ const Home = () => {
           box-shadow: var(--shadow-light, var(--shadow-dark));
           font-size: 0.7rem;
           font-weight: 700;
+          color: var(--text-light, var(--text-dark));
         }
 
         .pill-one {
@@ -517,6 +635,7 @@ const Home = () => {
           margin: 0 0 0.5rem;
           font-size: 1.125rem;
           font-weight: 700;
+          color: var(--text-light, var(--text-dark));
         }
 
         .feature-card p {
@@ -535,28 +654,6 @@ const Home = () => {
             --border: var(--border-dark);
             --shadow: var(--shadow-dark);
             --shadow-lg: var(--shadow-lg-dark);
-          }
-
-          .hero-copy p,
-          .feature-card p,
-          .progress-subtext {
-            color: var(--muted-dark);
-          }
-
-          .hero-copy h1,
-          .feature-card h3,
-          .preview-header h3 {
-            color: var(--text-dark);
-          }
-
-          .dashboard-preview,
-          .feature-card {
-            background: var(--card-dark);
-            border-color: var(--border-dark);
-          }
-
-          .floating-pill {
-            background: var(--card-dark);
           }
         }
 
@@ -625,6 +722,10 @@ const Home = () => {
 
           .home-features {
             padding: 0 1rem;
+          }
+
+          .stats-overview {
+            flex-direction: column;
           }
         }
       `}</style>
