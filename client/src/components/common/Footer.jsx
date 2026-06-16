@@ -21,7 +21,7 @@ const Footer = () => {
 
         <div className="tp-footer-socials">
           <a
-            href="https://instagram.com/yourusername"
+            href="https://www.instagram.com/progress_trackpad"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Instagram"
