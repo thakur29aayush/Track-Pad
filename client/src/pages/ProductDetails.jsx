@@ -52,7 +52,6 @@ const ProductDetails = () => {
     const loadProduct = async () => {
       try {
         setStatus("Loading product details...");
-
         const data = await getProductBySlug(slug);
 
         if (!isMounted) return;
@@ -202,17 +201,17 @@ const ProductDetails = () => {
 
         <style>{`
           .product-detail-page {
-            width: min(1120px, 92%);
+            width: min(1040px, 92%);
             margin: 0 auto;
-            padding: 28px 0 64px;
+            padding: 18px 0 36px;
             font-family: "Inter", "DM Sans", system-ui, sans-serif;
           }
 
           .state-card {
-            max-width: 430px;
-            margin: 70px auto;
-            padding: 30px 24px;
-            border-radius: 22px;
+            max-width: 410px;
+            margin: 56px auto;
+            padding: 24px 20px;
+            border-radius: 20px;
             background:
               radial-gradient(circle at top, rgba(34, 197, 94, 0.08), transparent 36%),
               var(--card, #ffffff);
@@ -222,7 +221,7 @@ const ProductDetails = () => {
           }
 
           .state-card p {
-            margin: 0 0 16px;
+            margin: 0 0 14px;
             color: var(--text, #0f172a);
             font-weight: 800;
           }
@@ -240,7 +239,7 @@ const ProductDetails = () => {
   return (
     <section className="product-detail-page">
       <Link to="/products" className="back-link">
-        <ArrowLeft size={16} />
+        <ArrowLeft size={15} />
         Back to products
       </Link>
 
@@ -250,7 +249,7 @@ const ProductDetails = () => {
             <img src={imageUrl} alt={`Cover for ${product.title}`} />
           ) : (
             <div className="media-placeholder">
-              <FileText size={42} strokeWidth={1.5} />
+              <FileText size={34} strokeWidth={1.5} />
               <span>
                 {product.title?.trim()?.slice(0, 1)?.toUpperCase() || "P"}
               </span>
@@ -263,7 +262,7 @@ const ProductDetails = () => {
             <span className="type-pill">{productType}</span>
 
             <span className="secure-pill">
-              <ShieldCheck size={14} />
+              <ShieldCheck size={13} />
               Secure UPI Gateway
             </span>
           </div>
@@ -297,24 +296,24 @@ const ProductDetails = () => {
             </div>
 
             <div className="delivery-box">
-              <DeliveryIcon size={16} />
+              <DeliveryIcon size={15} />
               {deliveryLabel}
             </div>
           </div>
 
           <div className="benefits-list">
             <div>
-              <CheckCircle2 size={16} />
+              <CheckCircle2 size={15} />
               Pay once, access forever
             </div>
 
             <div>
-              <Download size={16} />
+              <Download size={15} />
               Delivered instantly post-payment
             </div>
 
             <div>
-              <Lock size={16} />
+              <Lock size={15} />
               Stored safely in account vault
             </div>
           </div>
@@ -324,7 +323,7 @@ const ProductDetails = () => {
               "Opening secure checkout..."
             ) : (
               <>
-                <ShoppingBag size={16} />
+                <ShoppingBag size={15} />
                 {price > 0 ? "Buy with UPI Gateway" : "Claim Free Instant Access"}
               </>
             )}
@@ -340,7 +339,7 @@ const ProductDetails = () => {
 
       <div className="detail-extra">
         <div>
-          <BadgeCheck size={18} />
+          <BadgeCheck size={16} />
           <h3>After purchase deployment</h3>
           <p>
             This operational bundle registers permanently to your private library
@@ -349,7 +348,7 @@ const ProductDetails = () => {
         </div>
 
         <div>
-          <DeliveryIcon size={18} />
+          <DeliveryIcon size={16} />
           <h3>Distribution Logistics</h3>
           <p>
             Delivery configuration runs via <strong>{deliveryLabel}</strong>{" "}
@@ -361,9 +360,9 @@ const ProductDetails = () => {
 
       <style>{`
         .product-detail-page {
-          width: min(1120px, 92%);
+          width: min(1040px, 92%);
           margin: 0 auto;
-          padding: 22px 0 60px;
+          padding: 14px 0 34px;
           font-family: "Inter", "DM Sans", system-ui, sans-serif;
         }
 
@@ -371,10 +370,10 @@ const ProductDetails = () => {
           display: inline-flex;
           align-items: center;
           gap: 7px;
-          margin-bottom: 18px;
+          margin-bottom: 12px;
           color: var(--muted, #64748b);
           text-decoration: none;
-          font-size: 0.86rem;
+          font-size: 0.82rem;
           font-weight: 850;
           transition: color 0.18s ease, transform 0.18s ease;
         }
@@ -386,17 +385,18 @@ const ProductDetails = () => {
 
         .detail-shell {
           display: grid;
-          grid-template-columns: 0.95fr 1.05fr;
-          gap: 22px;
-          align-items: start;
+          grid-template-columns: 0.9fr 1fr;
+          gap: 18px;
+          align-items: stretch;
         }
 
         .media-card {
           position: sticky;
-          top: 86px;
-          min-height: 430px;
+          top: 74px;
+          height: 330px;
+          min-height: 330px;
           overflow: hidden;
-          border-radius: 26px;
+          border-radius: 24px;
           background:
             radial-gradient(circle at top right, rgba(245, 216, 0, 0.12), transparent 34%),
             linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(245, 216, 0, 0.05)),
@@ -416,23 +416,24 @@ const ProductDetails = () => {
         .media-card img {
           width: 100%;
           height: 100%;
-          min-height: 430px;
+          min-height: 330px;
           object-fit: cover;
           display: block;
         }
 
         .media-placeholder {
-          min-height: 430px;
+          height: 330px;
+          min-height: 330px;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 8px;
+          gap: 6px;
           color: #22c55e;
         }
 
         .media-placeholder span {
-          font-size: 4.5rem;
+          font-size: 3.55rem;
           font-weight: 950;
           letter-spacing: -0.08em;
           line-height: 1;
@@ -441,8 +442,8 @@ const ProductDetails = () => {
         .info-card {
           position: relative;
           overflow: hidden;
-          padding: 26px;
-          border-radius: 26px;
+          padding: 18px;
+          border-radius: 24px;
           background:
             radial-gradient(circle at top right, rgba(34, 197, 94, 0.09), transparent 38%),
             linear-gradient(145deg, rgba(255,255,255,0.055), rgba(255,255,255,0.015)),
@@ -455,8 +456,8 @@ const ProductDetails = () => {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          gap: 10px;
-          margin-bottom: 16px;
+          gap: 8px;
+          margin-bottom: 12px;
         }
 
         .type-pill,
@@ -464,9 +465,9 @@ const ProductDetails = () => {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          padding: 7px 11px;
+          padding: 6px 10px;
           border-radius: 999px;
-          font-size: 0.7rem;
+          font-size: 0.66rem;
           font-weight: 900;
         }
 
@@ -491,30 +492,34 @@ const ProductDetails = () => {
 
         .info-card h1 {
           margin: 0;
-          max-width: 680px;
+          max-width: 620px;
           color: var(--text, #0f172a);
-          font-size: clamp(1.85rem, 4vw, 3rem);
-          line-height: 1;
+          font-size: clamp(1.55rem, 3vw, 2.35rem);
+          line-height: 0.98;
           font-weight: 950;
           letter-spacing: -0.055em;
         }
 
         .description {
-          margin: 14px 0 22px;
+          margin: 10px 0 14px;
           color: var(--muted, #64748b);
-          font-size: 0.92rem;
-          line-height: 1.65;
+          font-size: 0.84rem;
+          line-height: 1.45;
           font-weight: 550;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
 
         .purchase-box {
           display: grid;
           grid-template-columns: 1fr auto;
           align-items: center;
-          gap: 16px;
-          margin-bottom: 18px;
-          padding: 16px;
-          border-radius: 20px;
+          gap: 12px;
+          margin-bottom: 12px;
+          padding: 12px;
+          border-radius: 18px;
           background:
             radial-gradient(circle at top left, rgba(34, 197, 94, 0.1), transparent 42%),
             var(--bg, #f8fafc);
@@ -523,9 +528,9 @@ const ProductDetails = () => {
 
         .price-label {
           display: block;
-          margin-bottom: 8px;
+          margin-bottom: 6px;
           color: var(--muted, #64748b);
-          font-size: 0.72rem;
+          font-size: 0.66rem;
           font-weight: 900;
           text-transform: uppercase;
           letter-spacing: 0.08em;
@@ -534,13 +539,13 @@ const ProductDetails = () => {
         .detail-price-stack {
           display: flex;
           align-items: flex-end;
-          gap: 10px;
+          gap: 8px;
           flex-wrap: wrap;
         }
 
         .detail-old-price {
           color: #ef4444;
-          font-size: 1.65rem;
+          font-size: 1.35rem;
           line-height: 1;
           font-weight: 950;
           text-decoration: line-through;
@@ -549,10 +554,10 @@ const ProductDetails = () => {
 
         .sale-price {
           color: #16a34a;
-          font-size: 1.15rem;
+          font-size: 1rem;
           line-height: 1;
           font-weight: 950;
-          padding: 5px 10px;
+          padding: 4px 9px;
           border-radius: 999px;
           background: rgba(34, 197, 94, 0.09);
           border: 1px solid rgba(34, 197, 94, 0.16);
@@ -560,7 +565,7 @@ const ProductDetails = () => {
 
         .free-price {
           color: #16a34a;
-          font-size: 1.75rem;
+          font-size: 1.35rem;
           line-height: 1;
           font-weight: 950;
         }
@@ -569,12 +574,12 @@ const ProductDetails = () => {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          padding: 5px 8px;
+          padding: 4px 7px;
           border-radius: 999px;
           background: rgba(34, 197, 94, 0.09);
           color: #16a34a;
           border: 1px solid rgba(34, 197, 94, 0.16);
-          font-size: 0.66rem;
+          font-size: 0.6rem;
           font-weight: 950;
           letter-spacing: 0.06em;
         }
@@ -584,12 +589,12 @@ const ProductDetails = () => {
           align-items: center;
           justify-content: center;
           gap: 7px;
-          padding: 10px 12px;
+          padding: 9px 11px;
           border-radius: 14px;
           background: var(--card, #ffffff);
           border: 1px solid var(--border, #e2e8f0);
           color: var(--text, #0f172a);
-          font-size: 0.78rem;
+          font-size: 0.74rem;
           font-weight: 850;
           white-space: nowrap;
         }
@@ -602,22 +607,22 @@ const ProductDetails = () => {
         .benefits-list {
           display: grid;
           grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 9px;
-          margin-bottom: 18px;
+          gap: 8px;
+          margin-bottom: 12px;
         }
 
         .benefits-list div {
           display: flex;
           align-items: center;
-          gap: 7px;
-          padding: 10px;
-          border-radius: 14px;
+          gap: 6px;
+          padding: 8px;
+          border-radius: 13px;
           background: var(--bg, #f8fafc);
           border: 1px solid var(--border, #e2e8f0);
           color: var(--muted, #64748b);
-          font-size: 0.74rem;
+          font-size: 0.68rem;
           font-weight: 800;
-          line-height: 1.35;
+          line-height: 1.25;
         }
 
         .benefits-list svg {
@@ -626,24 +631,25 @@ const ProductDetails = () => {
         }
 
         .login-note {
-          margin: 12px 0 0;
+          margin: 9px 0 0;
           color: var(--muted, #64748b);
           text-align: center;
-          font-size: 0.8rem;
+          font-size: 0.74rem;
           font-weight: 700;
         }
 
         .detail-extra {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 14px;
-          margin-top: 18px;
+          gap: 12px;
+          margin-top: 12px;
         }
 
         .detail-extra > div {
           position: relative;
-          padding: 18px;
-          border-radius: 22px;
+          min-height: 106px;
+          padding: 14px;
+          border-radius: 20px;
           background:
             linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015)),
             var(--card, #ffffff);
@@ -653,12 +659,12 @@ const ProductDetails = () => {
 
         .detail-extra svg {
           color: #22c55e;
-          margin-bottom: 10px;
+          margin-bottom: 7px;
         }
 
         .detail-extra h3 {
-          margin: 0 0 6px;
-          font-size: 0.98rem;
+          margin: 0 0 4px;
+          font-size: 0.88rem;
           color: var(--text, #0f172a);
           font-weight: 950;
           letter-spacing: -0.025em;
@@ -667,8 +673,8 @@ const ProductDetails = () => {
         .detail-extra p {
           margin: 0;
           color: var(--muted, #64748b);
-          font-size: 0.84rem;
-          line-height: 1.55;
+          font-size: 0.74rem;
+          line-height: 1.38;
           font-weight: 550;
         }
 
@@ -690,7 +696,8 @@ const ProductDetails = () => {
           .media-card,
           .media-card img,
           .media-placeholder {
-            min-height: 330px;
+            height: auto;
+            min-height: 300px;
           }
 
           .benefits-list {
@@ -704,16 +711,16 @@ const ProductDetails = () => {
 
         @media (max-width: 620px) {
           .product-detail-page {
-            width: min(100% - 28px, 1120px);
-            padding-top: 16px;
+            width: min(100% - 28px, 1040px);
+            padding-top: 12px;
           }
 
           .back-link {
-            margin-bottom: 14px;
+            margin-bottom: 12px;
           }
 
           .info-card {
-            padding: 20px;
+            padding: 16px;
             border-radius: 22px;
           }
 
@@ -724,30 +731,22 @@ const ProductDetails = () => {
           .media-card,
           .media-card img,
           .media-placeholder {
-            min-height: 280px;
+            min-height: 250px;
           }
 
           .top-row {
             flex-direction: column;
             align-items: flex-start;
-            gap: 8px;
+            gap: 7px;
           }
 
           .purchase-box {
             grid-template-columns: 1fr;
-            padding: 14px;
+            padding: 12px;
           }
 
           .detail-price-stack {
             align-items: center;
-          }
-
-          .detail-old-price {
-            font-size: 1.35rem;
-          }
-
-          .sale-price {
-            font-size: 1rem;
           }
 
           .delivery-box {
