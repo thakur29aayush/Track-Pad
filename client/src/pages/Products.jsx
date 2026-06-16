@@ -431,14 +431,14 @@ const Products = () => {
         }
 
         .main-stat {
-          padding: 18px 14px;
+          padding: 12px 12px;
           text-align: center;
         }
 
         .main-stat strong {
           display: block;
           color: #22c55e;
-          font-size: 2.6rem;
+          font-size: 1.9rem;
           line-height: 0.95;
           letter-spacing: -0.05em;
           font-weight: 950;
@@ -449,7 +449,7 @@ const Products = () => {
           display: block;
           margin-top: 5px;
           color: var(--muted);
-          font-size: 0.68rem;
+          font-size: 0.62rem;
           font-weight: 800;
           text-transform: uppercase;
           letter-spacing: 0.08em;
@@ -462,13 +462,13 @@ const Products = () => {
         }
 
         .mini-stats > div {
-          padding: 12px 8px;
+          padding: 8px 6px;
           text-align: center;
         }
 
         .mini-stats strong {
           color: var(--text);
-          font-size: 1.1rem;
+          font-size: 0.95rem;
           font-weight: 900;
         }
 
