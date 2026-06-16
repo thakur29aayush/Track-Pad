@@ -11,7 +11,6 @@ import {
   Grid3X3,
   LogOut,
   User,
-  Sparkles,
   ShieldCheck
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
@@ -87,7 +86,7 @@ const Navbar = () => {
       <div className="gv-nav-inner">
         {/* Logo */}
         <Link to="/" className="gv-logo" onClick={closeMenu}>
-          <Sparkles size={24} className="logo-icon" />
+          <img src="/logo.png" alt="TrackPad" className="logo-image" />
           <span>TrackPad</span>
         </Link>
 
@@ -267,9 +266,12 @@ const Navbar = () => {
           white-space: nowrap;
         }
 
-        .gv-logo .logo-icon {
-          color: var(--gv-primary);
-        }
+      .gv-logo .logo-image {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
 
         /* Desktop Navigation */
         .gv-desktop-nav {
