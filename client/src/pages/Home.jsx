@@ -175,7 +175,7 @@ const Home = () => {
           margin: 0;
           max-width: 660px;
           min-height: 2.08em;
-          font-size: clamp(2.35rem, 5vw, 4.75rem);
+          font-size: clamp(1.8rem, 4vw, 3.5rem);
           line-height: 0.98;
           letter-spacing: -0.06em;
           font-weight: 950;
@@ -210,7 +210,7 @@ const Home = () => {
         .hero-copy p {
           margin: 16px 0 0;
           max-width: 515px;
-          font-size: 0.92rem;
+          font-size: 0.82rem; 
           line-height: 1.62;
           color: var(--muted);
         }
@@ -457,11 +457,11 @@ const Home = () => {
 
           .typing-title {
             min-height: 2.55em;
-            font-size: clamp(2rem, 4vw, 3.8rem);
+            font-size: clamp(1.6rem, 3.5vw, 2.8rem);
           }
 
           .hero-copy p {
-            font-size: 0.88rem;
+            font-size: 0.8rem;
           }
 
           .dashboard-preview {
