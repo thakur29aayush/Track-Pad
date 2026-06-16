@@ -1,5 +1,3 @@
-// src/pages/Shop.jsx
-
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -56,6 +54,17 @@ const Shop = () => {
   const subtotal = useMemo(() => {
     return items.reduce((sum, item) => sum + Number(item.price || 0), 0);
   }, [items]);
+
+  const originalTotal = useMemo(() => {
+    return items.reduce((sum, item) => {
+      const price = Number(item.price || 0);
+      return sum + (price > 0 ? Math.round(price * 2) : 0);
+    }, 0);
+  }, [items]);
+
+  const totalSaved = useMemo(() => {
+    return Math.max(originalTotal - subtotal, 0);
+  }, [originalTotal, subtotal]);
 
   const removeItem = (id) => {
     const updated = items.filter((item) => item.id !== id);
@@ -193,6 +202,7 @@ const Shop = () => {
           <div className="cart-list">
             {items.map((item) => {
               const price = Number(item.price || 0);
+              const oldPrice = price > 0 ? Math.round(price * 2) : 0;
               const imageUrl = getImageUrl(item.thumbnail);
 
               return (
@@ -206,19 +216,32 @@ const Shop = () => {
                   </div>
 
                   <div className="cart-info">
-                    <span>{item.type?.replaceAll("_", " ") || "Digital Product"}</span>
+                    <span>
+                      {item.type?.replaceAll("_", " ") || "Digital Product"}
+                    </span>
+
                     <h3>{item.title}</h3>
+
                     <p>{item.deliveryType || "Instant Access"}</p>
                   </div>
 
-                  <strong className="cart-price">
-                    {price > 0 ? `₹${price.toLocaleString("en-IN")}` : "Free"}
-                  </strong>
+                  <div className="cart-price-stack">
+                    {oldPrice > 0 && (
+                      <span className="cart-old-price">
+                        ₹{oldPrice.toLocaleString("en-IN")}
+                      </span>
+                    )}
+
+                    <strong className="cart-price">
+                      {price > 0 ? `₹${price.toLocaleString("en-IN")}` : "Free"}
+                    </strong>
+                  </div>
 
                   <button
                     type="button"
                     className="remove-btn"
                     onClick={() => removeItem(item.id)}
+                    aria-label="Remove product"
                   >
                     <Trash2 size={15} />
                   </button>
@@ -236,8 +259,20 @@ const Shop = () => {
             </div>
 
             <div className="summary-line">
-              <span>Subtotal</span>
+              <span>Original Total</span>
+              <strong className="strike-total">
+                ₹{originalTotal.toLocaleString("en-IN")}
+              </strong>
+            </div>
+
+            <div className="summary-line">
+              <span>Discounted Total</span>
               <strong>₹{subtotal.toLocaleString("en-IN")}</strong>
+            </div>
+
+            <div className="summary-saving">
+              <span>Total Saved</span>
+              <strong>₹{totalSaved.toLocaleString("en-IN")}</strong>
             </div>
 
             <div className="summary-line">
@@ -420,6 +455,21 @@ const Shop = () => {
           font-weight: 700;
         }
 
+        .cart-price-stack {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 4px;
+        }
+
+        .cart-old-price {
+          color: #ef4444;
+          text-decoration: line-through;
+          font-size: 0.84rem;
+          font-weight: 950;
+          white-space: nowrap;
+        }
+
         .cart-price {
           color: #16a34a;
           font-size: 1rem;
@@ -468,6 +518,30 @@ const Shop = () => {
 
         .summary-line strong {
           color: var(--text);
+        }
+
+        .strike-total {
+          color: #ef4444 !important;
+          text-decoration: line-through;
+        }
+
+        .summary-saving {
+          display: flex;
+          justify-content: space-between;
+          gap: 14px;
+          padding: 11px 12px;
+          margin: 10px 0;
+          border-radius: 14px;
+          background: rgba(34, 197, 94, 0.08);
+          border: 1px solid rgba(34, 197, 94, 0.18);
+          color: #16a34a;
+          font-size: 0.88rem;
+          font-weight: 900;
+        }
+
+        .summary-saving strong {
+          color: #16a34a;
+          font-weight: 950;
         }
 
         .summary-total {
@@ -591,7 +665,7 @@ const Shop = () => {
             grid-template-columns: 72px 1fr;
           }
 
-          .cart-price,
+          .cart-price-stack,
           .remove-btn {
             grid-column: span 1;
           }
