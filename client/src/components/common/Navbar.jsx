@@ -113,7 +113,7 @@ const Navbar = () => {
             </button>
           )}
 
-          <Link to="/products" className="gv-shop-btn">
+          <Link to="/shop" className="gv-shop-btn">
             <ShoppingBag size={16} />
             Shop
           </Link>
@@ -129,7 +129,7 @@ const Navbar = () => {
 
         {/* Mobile Actions */}
         <div className="gv-mobile-actions">
-          <Link to="/products" className="gv-shop-btn-mobile" onClick={closeMenu}>
+          <Link to="/shop" className="gv-shop-btn-mobile" onClick={closeMenu}>
             <ShoppingBag size={18} />
           </Link>
           <button
@@ -175,7 +175,7 @@ const Navbar = () => {
             </button>
           )}
 
-          <Link to="/products" className="gv-mobile-shop" onClick={closeMenu}>
+          <Link to="/shop" className="gv-mobile-shop" onClick={closeMenu}>
             <ShoppingBag size={16} />
             Shop Products
           </Link>

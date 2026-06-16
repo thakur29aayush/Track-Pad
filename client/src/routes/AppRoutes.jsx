@@ -12,6 +12,7 @@ import AdminProducts from "../pages/AdminProducts";
 import AdminOrders from "../pages/AdminOrders";
 import AdminBookings from "../pages/AdminBookings";
 import AdminUsers from "../pages/AdminUsers";
+import Shop from "../pages/Shop";
 
 import ProtectedRoute from "./ProtectedRoute";
 import AdminRoute from "./AdminRoute";
@@ -95,6 +96,15 @@ const AppRoutes = () => {
           </AdminRoute>
         }
       />
+      <Route
+  path="/shop"
+  element={
+    <ProtectedRoute>
+      <Shop />
+    </ProtectedRoute>
+  }
+/>
+      
 
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
