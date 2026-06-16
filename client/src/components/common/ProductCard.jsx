@@ -85,13 +85,6 @@ const ProductCard = ({ product }) => {
                 Featured
               </span>
             )}
-
-            {isNew && (
-              <span className="floating-badge new">
-                <Sparkles size={10} fill="currentColor" />
-                New
-              </span>
-            )}
           </div>
 
           {imageUrl ? (
