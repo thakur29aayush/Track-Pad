@@ -117,11 +117,6 @@ const Products = () => {
     <section className="products-page">
       <header className="products-hero">
         <div className="hero-content">
-          <p className="products-eyebrow">
-            <Sparkles size={12} />
-            Digital Store
-          </p>
-
           <h1>
             Digital products for <span>cleaner routines.</span>
           </h1>
@@ -374,7 +369,7 @@ const Products = () => {
         .products-hero h1 {
           margin: 0;
           color: var(--text);
-          font-size: clamp(1.9rem, 4vw, 3.2rem);
+          font-size: clamp(1.4rem, 2.8vw, 2.15rem);
           line-height: 1;
           letter-spacing: -0.055em;
           font-weight: 950;
