@@ -97,7 +97,7 @@ const Home = () => {
             <div className="progress-block">
               <div className="progress-row">
                 <span>Habit Tracker</span>
-                <strong>99%</strong>
+                <strong>99%🔥</strong>
               </div>
 
               <div className="progress-track">
