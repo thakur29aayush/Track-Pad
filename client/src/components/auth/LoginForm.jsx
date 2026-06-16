@@ -66,7 +66,7 @@ const LoginForm = ({ onOtpSent }) => {
   return (
     <form className="auth-card" onSubmit={handleSubmit}>
       <div className="auth-icon">
-        <Mail size={18} />
+        <Mail size={17} />
       </div>
 
       <div className="auth-heading">
@@ -101,7 +101,7 @@ const LoginForm = ({ onOtpSent }) => {
           <label className="auth-field">
             <span>Full name</span>
             <div className="auth-input-wrap">
-              <User size={16} />
+              <User size={15} />
               <input
                 type="text"
                 value={form.name}
@@ -115,7 +115,7 @@ const LoginForm = ({ onOtpSent }) => {
           <label className="auth-field">
             <span>Phone number</span>
             <div className="auth-input-wrap">
-              <Phone size={16} />
+              <Phone size={15} />
               <input
                 type="tel"
                 value={form.phone}
@@ -131,7 +131,7 @@ const LoginForm = ({ onOtpSent }) => {
       <label className="auth-field">
         <span>Email address</span>
         <div className="auth-input-wrap">
-          <Mail size={16} />
+          <Mail size={15} />
           <input
             type="email"
             required
@@ -164,57 +164,58 @@ const LoginForm = ({ onOtpSent }) => {
       <style>{`
         .auth-card {
           width: 100%;
-          padding: 24px;
-          border-radius: 22px;
+          padding: 18px;
+          border-radius: 20px;
           background: var(--card);
           border: 1px solid var(--border);
           box-shadow: var(--shadow);
         }
 
         .auth-icon {
-          width: 42px;
-          height: 42px;
+          width: 38px;
+          height: 38px;
           display: grid;
           place-items: center;
-          border-radius: 14px;
+          border-radius: 13px;
           background: rgba(22, 163, 74, 0.12);
           color: #16a34a;
-          margin-bottom: 16px;
+          margin-bottom: 12px;
         }
 
         .auth-heading h2 {
           margin: 0;
-          font-size: 1.55rem;
+          font-size: 1.35rem;
           line-height: 1.15;
           letter-spacing: -0.04em;
         }
 
         .auth-heading p {
-          margin: 8px 0 0;
+          margin: 6px 0 0;
           color: var(--muted);
-          font-size: 0.92rem;
-          line-height: 1.55;
+          font-size: 0.86rem;
+          line-height: 1.45;
         }
 
         .auth-tabs {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 8px;
-          margin-top: 18px;
-          padding: 5px;
-          border-radius: 14px;
+          gap: 7px;
+          margin-top: 14px;
+          padding: 4px;
+          border-radius: 13px;
           background: var(--bg);
           border: 1px solid var(--border);
         }
 
         .auth-tabs button {
           border: 0;
-          border-radius: 10px;
-          padding: 10px;
+          border-radius: 9px;
+          padding: 8px;
           background: transparent;
           color: var(--muted);
           cursor: pointer;
           font-weight: 900;
+          font-size: 0.86rem;
         }
 
         .auth-tabs button.active {
@@ -224,24 +225,24 @@ const LoginForm = ({ onOtpSent }) => {
 
         .auth-field {
           display: block;
-          margin-top: 16px;
+          margin-top: 12px;
         }
 
         .auth-field span {
           display: block;
-          margin-bottom: 7px;
+          margin-bottom: 6px;
           color: var(--text);
-          font-size: 0.82rem;
+          font-size: 0.78rem;
           font-weight: 800;
         }
 
         .auth-input-wrap {
-          height: 48px;
+          height: 42px;
           display: flex;
           align-items: center;
-          gap: 10px;
-          padding: 0 14px;
-          border-radius: 14px;
+          gap: 9px;
+          padding: 0 12px;
+          border-radius: 13px;
           background: var(--bg);
           border: 1px solid var(--border);
           color: #16a34a;
@@ -258,15 +259,15 @@ const LoginForm = ({ onOtpSent }) => {
           outline: 0;
           background: transparent;
           color: var(--text);
-          font-size: 0.9rem;
+          font-size: 0.86rem;
           font-weight: 700;
         }
 
         .auth-status {
-          margin: 13px 0 0;
-          padding: 10px 12px;
-          border-radius: 12px;
-          font-size: 0.84rem;
+          margin: 10px 0 0;
+          padding: 9px 11px;
+          border-radius: 11px;
+          font-size: 0.8rem;
           font-weight: 700;
         }
 
@@ -287,18 +288,18 @@ const LoginForm = ({ onOtpSent }) => {
 
         .auth-card .btn {
           width: 100%;
-          margin-top: 16px;
+          margin-top: 13px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
           gap: 7px;
-          padding: 12px 18px;
+          padding: 10px 16px;
         }
 
         .auth-note {
-          margin: 13px 0 0;
+          margin: 10px 0 0;
           color: var(--muted);
-          font-size: 0.8rem;
+          font-size: 0.76rem;
           text-align: center;
         }
       `}</style>
