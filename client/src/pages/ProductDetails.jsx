@@ -203,7 +203,7 @@ const ProductDetails = () => {
           .product-detail-page {
             width: min(1040px, 92%);
             margin: 0 auto;
-            padding: 18px 0 36px;
+            padding: 4px 0 34px;
             font-family: "Inter", "DM Sans", system-ui, sans-serif;
           }
 
