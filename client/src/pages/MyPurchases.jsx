@@ -1,56 +1,96 @@
-// MyPurchases.jsx
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { PackageCheck, ShoppingBag } from "lucide-react";
+import {
+  PackageCheck,
+  ShoppingBag,
+  RefreshCw,
+  Library,
+} from "lucide-react";
 import { getMyPurchases } from "../services/productApi";
 import ProductAccessBox from "../components/products/ProductAccessBox";
 import Button from "../components/common/Button";
 
 const MyPurchases = () => {
   const [purchases, setPurchases] = useState([]);
-  const [status, setStatus] = useState("Loading purchases...");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const loadPurchases = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const data = await getMyPurchases();
+      setPurchases(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setPurchases([]);
+      setError("Failed to load purchases.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const data = await getMyPurchases();
-        setPurchases(Array.isArray(data) ? data : []);
-        setStatus("");
-      } catch {
-        setPurchases([]);
-        setStatus("Failed to load purchases.");
-      }
-    };
-    load();
+    loadPurchases();
   }, []);
 
   return (
     <section className="purchases-page">
       <header className="purchases-header">
         <div>
-          <p className="purchases-eyebrow">Your Library</p>
+          <p className="purchases-eyebrow">
+            <Library size={13} />
+            Your Library
+          </p>
+
           <h1>
             My <span>Purchases</span>
           </h1>
+
           <p>
-            Access your purchased templates, files, and product links from one
-            clean dashboard.
+            Access all your purchased digital products, templates, files, and
+            links from one dashboard.
           </p>
         </div>
 
         <div className="purchases-total">
           <strong>{purchases.length}</strong>
-          <span>owned items</span>
+          <span>{purchases.length === 1 ? "owned item" : "owned items"}</span>
         </div>
       </header>
 
-      {status && <p className="purchases-status">{status}</p>}
+      <div className="purchases-toolbar">
+        <p>
+          {loading
+            ? "Loading your purchases..."
+            : error
+            ? error
+            : purchases.length > 0
+            ? "Your purchased products are ready to access."
+            : "No purchases found yet."}
+        </p>
 
-      {!status && purchases.length === 0 ? (
+        <button onClick={loadPurchases} disabled={loading}>
+          <RefreshCw size={15} className={loading ? "spin" : ""} />
+          Refresh
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="purchases-grid">
+          {[1, 2, 3].map((item) => (
+            <div className="purchase-skeleton" key={item} />
+          ))}
+        </div>
+      ) : purchases.length === 0 ? (
         <div className="empty-purchases">
-          <PackageCheck size={30} />
+          <PackageCheck size={34} />
           <h3>No purchases yet</h3>
-          <p>Your bought products will appear here after payment verification.</p>
+          <p>
+            Your bought products will appear here after payment verification.
+            Truly shocking that capitalism requires payment first.
+          </p>
+
           <Link to="/products">
             <Button>
               <ShoppingBag size={16} />
@@ -68,7 +108,7 @@ const MyPurchases = () => {
 
       <style>{`
         .purchases-page {
-          padding: 20px 0 48px;
+          padding: 22px 0 56px;
           font-family: Inter, "DM Sans", system-ui, sans-serif;
         }
 
@@ -76,26 +116,30 @@ const MyPurchases = () => {
           display: grid;
           grid-template-columns: 1fr auto;
           align-items: end;
-          gap: 16px;
-          margin-bottom: 16px;
-          padding: 20px;
-          border-radius: 22px;
+          gap: 18px;
+          margin-bottom: 14px;
+          padding: 22px;
+          border-radius: 24px;
           background:
-            linear-gradient(135deg, rgba(22, 163, 74, 0.1), rgba(245, 216, 0, 0.05)),
+            radial-gradient(circle at top left, rgba(34, 197, 94, 0.16), transparent 34%),
+            linear-gradient(135deg, rgba(245, 216, 0, 0.08), rgba(22, 163, 74, 0.08)),
             var(--card);
           border: 1px solid var(--border);
           box-shadow: var(--shadow);
         }
 
         .purchases-eyebrow {
+          width: fit-content;
           display: inline-flex;
-          margin: 0 0 8px;
-          padding: 5px 8px;
+          align-items: center;
+          gap: 6px;
+          margin: 0 0 10px;
+          padding: 6px 10px;
           border-radius: 999px;
           background: rgba(22, 163, 74, 0.12);
           color: #16a34a;
-          border: 1px solid rgba(22, 163, 74, 0.18);
-          font-size: 0.62rem;
+          border: 1px solid rgba(22, 163, 74, 0.2);
+          font-size: 0.66rem;
           font-weight: 900;
           letter-spacing: 0.12em;
           text-transform: uppercase;
@@ -104,9 +148,10 @@ const MyPurchases = () => {
         .purchases-header h1 {
           margin: 0;
           color: var(--text);
-          font-size: clamp(1.9rem, 4vw, 3rem);
+          font-size: clamp(2rem, 4vw, 3rem);
           line-height: 1;
-          font-weight: 900;
+          font-weight: 950;
+          letter-spacing: -0.05em;
         }
 
         .purchases-header h1 span {
@@ -116,16 +161,16 @@ const MyPurchases = () => {
         }
 
         .purchases-header p {
-          max-width: 520px;
+          max-width: 560px;
           margin: 10px 0 0;
           color: var(--muted);
-          font-size: 0.84rem;
-          line-height: 1.5;
+          font-size: 0.88rem;
+          line-height: 1.55;
         }
 
         .purchases-total {
-          min-width: 100px;
-          padding: 12px;
+          min-width: 120px;
+          padding: 14px;
           border-radius: 18px;
           background: var(--bg);
           border: 1px solid var(--border);
@@ -135,32 +180,92 @@ const MyPurchases = () => {
         .purchases-total strong {
           display: block;
           color: #16a34a;
-          font-size: 1.65rem;
+          font-size: 1.9rem;
+          line-height: 1;
         }
 
         .purchases-total span {
           display: block;
-          margin-top: 4px;
+          margin-top: 5px;
           color: var(--muted);
           font-size: 0.72rem;
+          font-weight: 800;
+        }
+
+        .purchases-toolbar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          margin-bottom: 16px;
+          padding: 12px 14px;
+          border-radius: 16px;
+          background: var(--card);
+          border: 1px solid var(--border);
+        }
+
+        .purchases-toolbar p {
+          margin: 0;
+          color: var(--muted);
+          font-size: 0.82rem;
           font-weight: 700;
         }
 
-        .purchases-status {
-          color: var(--muted);
-          font-weight: 700;
-          margin-bottom: 14px;
+        .purchases-toolbar button {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          border: 1px solid var(--border);
+          background: var(--bg);
+          color: var(--text);
+          border-radius: 999px;
+          padding: 8px 12px;
+          font-size: 0.76rem;
+          font-weight: 850;
+          cursor: pointer;
+        }
+
+        .purchases-toolbar button:disabled {
+          opacity: 0.65;
+          cursor: not-allowed;
+        }
+
+        .spin {
+          animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
         }
 
         .purchases-grid {
           display: grid;
-          grid-template-columns: repeat(3, 1fr);
+          grid-template-columns: repeat(3, minmax(0, 1fr));
           gap: 14px;
         }
 
-        .empty-purchases {
-          padding: 36px 16px;
+        .purchase-skeleton {
+          min-height: 210px;
           border-radius: 20px;
+          background:
+            linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent),
+            var(--card);
+          border: 1px solid var(--border);
+          box-shadow: var(--shadow);
+          animation: pulse 1.3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+          50% {
+            opacity: 0.55;
+          }
+        }
+
+        .empty-purchases {
+          padding: 42px 18px;
+          border-radius: 22px;
           background: var(--card);
           border: 1px solid var(--border);
           box-shadow: var(--shadow);
@@ -172,15 +277,17 @@ const MyPurchases = () => {
         }
 
         .empty-purchases h3 {
-          margin: 12px 0 6px;
-          font-size: 1.2rem;
+          margin: 14px 0 6px;
+          color: var(--text);
+          font-size: 1.25rem;
         }
 
         .empty-purchases p {
-          max-width: 400px;
-          margin: 0 auto 16px;
+          max-width: 430px;
+          margin: 0 auto 18px;
           color: var(--muted);
-          font-size: 0.82rem;
+          font-size: 0.85rem;
+          line-height: 1.55;
         }
 
         @media (max-width: 980px) {
@@ -190,8 +297,8 @@ const MyPurchases = () => {
         }
 
         @media (max-width: 640px) {
-          .purchases-grid {
-            grid-template-columns: 1fr;
+          .purchases-page {
+            padding-top: 14px;
           }
 
           .purchases-header {
@@ -202,6 +309,15 @@ const MyPurchases = () => {
           .purchases-total {
             width: 100%;
             text-align: left;
+          }
+
+          .purchases-toolbar {
+            align-items: flex-start;
+            flex-direction: column;
+          }
+
+          .purchases-grid {
+            grid-template-columns: 1fr;
           }
         }
       `}</style>

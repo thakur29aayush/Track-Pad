@@ -11,7 +11,9 @@ import {
   Grid3X3,
   LogOut,
   User,
-  ShieldCheck
+  ShieldCheck,
+  Library,
+  GraduationCap,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -26,27 +28,53 @@ const Navbar = () => {
   const isDark = theme === "dark";
   const isAdmin = user?.role === "ADMIN";
 
-  const navItems = useMemo(() => {
-    const items = [
-      { to: "/", label: "Home", icon: <Home size={16} /> },
-      { to: "/products", label: "Products", icon: <Grid3X3 size={16} /> },
-    ];
+const navItems = useMemo(() => {
+  const items = [
+    {
+      to: "/",
+      label: "Home",
+      icon: <Home size={16} />,
+    },
+    {
+      to: "/products",
+      label: "Products",
+      icon: <Grid3X3 size={16} />,
+    },
+  ];
 
-    if (isAdmin) {
-      items.push({
-        to: "/admin",
-        label: "Admin",
-        icon: <LayoutDashboard size={16} />,
-        admin: true,
-      });
-    }
+  if (user) {
+    items.push({
+      to: "/my-purchases",
+      label: "My Purchases",
+      icon: <Library size={16} />,
+    });
 
-    if (!user) {
-      items.push({ to: "/login", label: "Login", icon: <User size={16} /> });
-    }
+    items.push({
+      to: "/counselling",
+      label: "Counselling",
+      icon: <GraduationCap size={16} />,
+    });
+  }
 
-    return items;
-  }, [user, isAdmin]);
+  if (isAdmin) {
+    items.push({
+      to: "/admin",
+      label: "Admin",
+      icon: <LayoutDashboard size={16} />,
+      admin: true,
+    });
+  }
+
+  if (!user) {
+    items.push({
+      to: "/login",
+      label: "Login",
+      icon: <User size={16} />,
+    });
+  }
+
+  return items;
+}, [user, isAdmin]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 24);
@@ -106,7 +134,7 @@ const Navbar = () => {
           ))}
 
           {user && (
-            <button className="gv-logout-btn" onClick={logout}>
+            <button className="gv-logout-btn" onClick={handleLogout}>
               <LogOut size={16} />
               Logout
             </button>
@@ -240,7 +268,7 @@ const Navbar = () => {
         }
 
         .gv-nav-inner {
-          width: min(1200px, 92%);
+          width: min(1380px, 95%);
           height: 72px;
           margin: 0 auto;
           display: flex;
@@ -249,6 +277,11 @@ const Navbar = () => {
           gap: 1.5rem;
           padding: 0 1rem;
         }
+
+        .gv-nav-link svg,
+        .gv-mobile-link svg {
+        flex-shrink: 0;
+         }
 
         /* Logo */
         .gv-logo {
@@ -277,7 +310,7 @@ const Navbar = () => {
         .gv-desktop-nav {
           display: flex;
           align-items: center;
-          gap: 0.5rem;
+          gap: 0.35rem;
         }
 
         .gv-nav-link {
@@ -285,7 +318,7 @@ const Navbar = () => {
           align-items: center;
           gap: 0.5rem;
           text-decoration: none;
-          font-weight: 600;
+          font-weight: 700;
           font-size: 0.9rem;
           padding: 0.625rem 1rem;
           border-radius: 0.5rem;
