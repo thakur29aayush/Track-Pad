@@ -49,11 +49,11 @@ const navItems = useMemo(() => {
       icon: <Library size={16} />,
     });
 
-    items.push({
-      to: "/counselling",
-      label: "Counselling",
-      icon: <GraduationCap size={16} />,
-    });
+    // items.push({
+    //   to: "/counselling",
+    //   label: "Counselling",
+    //   icon: <GraduationCap size={16} />,
+    // });
   }
 
   if (isAdmin) {
