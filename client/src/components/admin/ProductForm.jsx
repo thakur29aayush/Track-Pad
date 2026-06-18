@@ -12,7 +12,7 @@ const getImageUrl = (image) => {
 
 const initialState = {
   title: "",
-  description: "",
+  // description: "",
   pricingType: "PAID",
   price: 499,
   type: "DIGITAL_PRODUCT",
@@ -63,7 +63,7 @@ const ProductForm = ({
 
     setForm({
       title: product.title || "",
-      description: product.description || "",
+      // description: product.description || "",
       pricingType: Number(product.price || 0) <= 0 ? "FREE" : "PAID",
       price: Number(product.price || 0),
       type: product.type || "DIGITAL_PRODUCT",
@@ -148,7 +148,7 @@ const ProductForm = ({
       const formData = new FormData();
 
       formData.append("title", form.title.trim());
-      formData.append("description", form.description.trim());
+      // formData.append("description", form.description.trim());
       formData.append("price", isFree ? 0 : Number(form.price));
       formData.append("type", form.type);
       formData.append("deliveryType", form.deliveryType);
@@ -198,7 +198,7 @@ const ProductForm = ({
         />
       </label>
 
-      <label>
+      {/* <label>
         <span>Description</span>
         <textarea
           placeholder="Short product description"
@@ -206,7 +206,7 @@ const ProductForm = ({
           onChange={(e) => update("description", e.target.value)}
           required
         />
-      </label>
+      </label> */}
 
       <div className="form-row">
         <label>
