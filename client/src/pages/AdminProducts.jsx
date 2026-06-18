@@ -132,39 +132,6 @@ const AdminProducts = () => {
       </header>
 
       <div className="admin-products-layout">
-        <div className="product-form-panel">
-          <div className="panel-head">
-            <h2>
-              {editingProduct ? <Edit3 size={15} /> : <Plus size={15} />}
-              {editingProduct ? "Edit Product" : "Add Product"}
-            </h2>
-
-            <p>
-              {editingProduct
-                ? "Update this product, including thumbnail and tutorial image."
-                : "Create a new product for the store."}
-            </p>
-
-            {editingProduct && (
-              <button
-                type="button"
-                className="cancel-edit-btn"
-                onClick={() => setEditingProduct(null)}
-              >
-                <X size={13} />
-                Cancel edit
-              </button>
-            )}
-          </div>
-
-          <ProductForm
-            key={editingProduct?.id || "create-product"}
-            product={editingProduct}
-            onSubmit={handleSubmit}
-            submitLabel={editingProduct ? "Update Product" : "Create Product"}
-          />
-        </div>
-
         <div className="products-table-panel">
           <div className="products-toolbar">
             <div>
@@ -230,7 +197,7 @@ const AdminProducts = () => {
                           )}
                         </div>
 
-                        <div>
+                        <div className="product-info">
                           <strong>{product.title || "Untitled product"}</strong>
                           <small>{product.slug || "no-slug"}</small>
                         </div>
@@ -261,7 +228,15 @@ const AdminProducts = () => {
                           type="button"
                           className="edit-btn"
                           title="Edit product"
-                          onClick={() => setEditingProduct(product)}
+                          onClick={() => {
+                            setEditingProduct(product);
+                            document
+                              .querySelector(".product-form-panel")
+                              ?.scrollIntoView({
+                                behavior: "smooth",
+                                block: "start",
+                              });
+                          }}
                         >
                           <Edit3 size={14} />
                         </button>
@@ -293,6 +268,39 @@ const AdminProducts = () => {
               </tbody>
             </table>
           </div>
+        </div>
+
+        <div className="product-form-panel">
+          <div className="panel-head">
+            <h2>
+              {editingProduct ? <Edit3 size={15} /> : <Plus size={15} />}
+              {editingProduct ? "Edit Product" : "Add Product"}
+            </h2>
+
+            <p>
+              {editingProduct
+                ? "Update this product, including thumbnail and tutorial image."
+                : "Create a new product for the store."}
+            </p>
+
+            {editingProduct && (
+              <button
+                type="button"
+                className="cancel-edit-btn"
+                onClick={() => setEditingProduct(null)}
+              >
+                <X size={13} />
+                Cancel edit
+              </button>
+            )}
+          </div>
+
+          <ProductForm
+            key={editingProduct?.id || "create-product"}
+            product={editingProduct}
+            onSubmit={handleSubmit}
+            submitLabel={editingProduct ? "Update Product" : "Create Product"}
+          />
         </div>
       </div>
 
@@ -396,13 +404,14 @@ const AdminProducts = () => {
 
         .admin-products-layout {
           display: grid;
-          grid-template-columns: 360px 1fr;
+          grid-template-columns: 1fr;
           gap: 12px;
           align-items: start;
         }
 
         .product-form-panel,
         .products-table-panel {
+          width: 100%;
           border-radius: 20px;
           background: var(--card);
           border: 1px solid var(--border);
@@ -412,6 +421,7 @@ const AdminProducts = () => {
 
         .product-form-panel {
           padding: 18px;
+          overflow: visible;
         }
 
         .panel-head {
@@ -479,7 +489,7 @@ const AdminProducts = () => {
         }
 
         .product-search {
-          width: 210px;
+          width: min(280px, 100%);
           height: 38px;
           display: flex;
           align-items: center;
@@ -511,15 +521,17 @@ const AdminProducts = () => {
           background: var(--bg);
           color: var(--text);
           cursor: pointer;
+          flex-shrink: 0;
         }
 
         .admin-products-table-wrap {
+          width: 100%;
           overflow-x: auto;
         }
 
         .products-table-panel table {
           width: 100%;
-          min-width: 720px;
+          min-width: 760px;
           border-collapse: collapse;
         }
 
@@ -550,17 +562,18 @@ const AdminProducts = () => {
           display: flex;
           align-items: center;
           gap: 10px;
-          min-width: 200px;
+          min-width: 260px;
+          max-width: 520px;
         }
 
         .product-thumb {
-          width: 36px;
-          height: 36px;
+          width: 52px;
+          height: 52px;
           overflow: hidden;
           display: grid;
           place-items: center;
           flex-shrink: 0;
-          border-radius: 11px;
+          border-radius: 13px;
           background: rgba(22,163,74,0.12);
           color: #16a34a;
           font-size: 0.9rem;
@@ -570,7 +583,12 @@ const AdminProducts = () => {
         .product-thumb img {
           width: 100%;
           height: 100%;
+          display: block;
           object-fit: cover;
+        }
+
+        .product-info {
+          min-width: 0;
         }
 
         .product-cell strong {
@@ -579,6 +597,9 @@ const AdminProducts = () => {
           font-size: 0.84rem;
           font-weight: 800;
           line-height: 1.2;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .product-cell small {
@@ -587,12 +608,16 @@ const AdminProducts = () => {
           color: var(--muted);
           font-size: 0.7rem;
           font-family: monospace;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .price-val {
           font-size: 0.88rem;
           font-weight: 900;
           color: #16a34a;
+          white-space: nowrap;
         }
 
         .type-pill {
@@ -671,12 +696,6 @@ const AdminProducts = () => {
           opacity: 0.3;
         }
 
-        @media (max-width: 1100px) {
-          .admin-products-layout {
-            grid-template-columns: 1fr;
-          }
-        }
-
         @media (max-width: 760px) {
           .admin-products-header {
             grid-template-columns: 1fr;
@@ -698,6 +717,7 @@ const AdminProducts = () => {
 
           .toolbar-actions {
             flex-direction: column;
+            align-items: stretch;
           }
 
           .product-search {
@@ -706,6 +726,25 @@ const AdminProducts = () => {
 
           .refresh-btn {
             width: 100%;
+          }
+
+          .products-table-panel table {
+            min-width: 680px;
+          }
+
+          .product-cell {
+            min-width: 220px;
+          }
+        }
+
+        @media (max-width: 520px) {
+          .product-form-panel {
+            padding: 14px;
+          }
+
+          .product-thumb {
+            width: 46px;
+            height: 46px;
           }
         }
       `}</style>
