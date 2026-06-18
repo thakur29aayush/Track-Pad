@@ -794,29 +794,29 @@ const Products = () => {
           color: #08120c;
         }
 
-        .product-image {
-          width: 100%;
-          aspect-ratio: 4 / 3;
-          overflow: hidden;
-          background: #111;
-          border-bottom: 1px solid var(--border);
-          display: block;
-          line-height: 0;
-        }
+ .product-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border);
+  display: block;
+  line-height: 0;
+}
 
-        .product-image img {
-          width: 100%;
-          height: 100%;
-          display: block;
-          object-fit: cover;
-          object-position: center center;
-          transition: transform 0.35s ease;
-        }
+.product-image img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+  background: #ffffff;
+  transition: none;
+}
 
-        .product-card:hover .product-image img {
-          transform: scale(1.03);
-        }
-
+.product-card:hover .product-image img {
+  transform: none;
+}
         .product-image span {
           width: 100%;
           height: 100%;
