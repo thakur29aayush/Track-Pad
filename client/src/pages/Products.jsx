@@ -424,7 +424,7 @@ const Products = () => {
           align-items: center;
           gap: 28px;
           padding: 26px;
-          border-radius: 22px;
+          border-radius: 0;
           background:
             radial-gradient(circle at top right, rgba(34, 197, 94, 0.11), transparent 36%),
             linear-gradient(145deg, rgba(255,255,255,0.055), rgba(255,255,255,0.015)),
@@ -475,7 +475,7 @@ const Products = () => {
           align-items: center;
           gap: 6px;
           padding: 7px 10px;
-          border-radius: 999px;
+          border-radius: 0;
           background: var(--bg);
           border: 1px solid var(--border);
           color: var(--muted);
@@ -501,7 +501,7 @@ const Products = () => {
             linear-gradient(145deg, rgba(255,255,255,0.055), rgba(255,255,255,0.015)),
             var(--bg);
           border: 1px solid var(--border);
-          border-radius: 16px;
+          border-radius: 0;
         }
 
         .main-stat {
@@ -548,7 +548,7 @@ const Products = () => {
 
         .catalog-panel {
           padding: 14px;
-          border-radius: 20px;
+          border-radius: 0;
           background:
             linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015)),
             var(--card);
@@ -565,7 +565,7 @@ const Products = () => {
           align-items: center;
           gap: 10px;
           padding: 0 13px;
-          border-radius: 14px;
+          border-radius: 0;
           background: var(--bg);
           border: 1px solid var(--border);
           color: var(--muted);
@@ -592,7 +592,7 @@ const Products = () => {
           display: grid;
           place-items: center;
           border: 1px solid var(--border);
-          border-radius: 999px;
+          border-radius: 0;
           background: var(--card);
           color: var(--muted);
           cursor: pointer;
@@ -612,7 +612,7 @@ const Products = () => {
           align-items: center;
           gap: 8px;
           padding: 0 12px;
-          border-radius: 13px;
+          border-radius: 0;
           background: var(--bg);
           border: 1px solid var(--border);
           color: var(--muted);
@@ -647,7 +647,7 @@ const Products = () => {
           justify-content: center;
           gap: 7px;
           padding: 0 14px;
-          border-radius: 13px;
+          border-radius: 0;
           border: 1px solid rgba(34, 197, 94, 0.2);
           background: rgba(34, 197, 94, 0.07);
           color: #22c55e;
@@ -709,7 +709,7 @@ const Products = () => {
           gap: 7px;
           padding: 0 14px;
           border: 0;
-          border-radius: 999px;
+          border-radius: 0;
           background: linear-gradient(135deg, #f5d800, #22c55e);
           color: #08120c;
           cursor: pointer;
@@ -729,7 +729,7 @@ const Products = () => {
           height: 20px;
           display: grid;
           place-items: center;
-          border-radius: 999px;
+          border-radius: 0;
           background: #08120c;
           color: #f5d800;
           font-size: 0.68rem;
@@ -745,7 +745,7 @@ const Products = () => {
         .product-card {
           position: relative;
           overflow: hidden;
-          border-radius: 18px;
+          border-radius: 0;
           background: var(--card);
           border: 1px solid var(--border);
           box-shadow: var(--shadow);
@@ -778,7 +778,7 @@ const Products = () => {
           align-items: center;
           gap: 7px;
           padding: 7px 10px;
-          border-radius: 999px;
+          border-radius: 0;
           border: 1px solid rgba(34, 197, 94, 0.3);
           background: rgba(8, 18, 12, 0.88);
           color: #f5d800;
@@ -803,10 +803,12 @@ const Products = () => {
 
         .product-image {
           width: 100%;
-          height: 220px;
+          aspect-ratio: 4 / 3;
           overflow: hidden;
           background: #111;
           border-bottom: 1px solid var(--border);
+          display: block;
+          line-height: 0;
         }
 
         .product-image img {
@@ -814,7 +816,7 @@ const Products = () => {
           height: 100%;
           display: block;
           object-fit: cover;
-          object-position: top center;
+          object-position: center center;
           transition: transform 0.35s ease;
         }
 
@@ -842,7 +844,7 @@ const Products = () => {
           background: rgba(34, 197, 94, 0.08);
           border: 1px solid rgba(34, 197, 94, 0.15);
           padding: 5px 8px;
-          border-radius: 999px;
+          border-radius: 0;
           font-size: 0.65rem;
           font-weight: 900;
           text-transform: uppercase;
@@ -899,7 +901,7 @@ const Products = () => {
           flex-direction: column;
           align-items: center;
           padding: 46px 24px;
-          border-radius: 20px;
+          border-radius: 0;
           background:
             radial-gradient(circle at top, rgba(34, 197, 94, 0.08), transparent 34%),
             var(--card);
@@ -913,7 +915,7 @@ const Products = () => {
           height: 56px;
           display: grid;
           place-items: center;
-          border-radius: 16px;
+          border-radius: 0;
           background: rgba(34, 197, 94, 0.08);
           border: 1px solid rgba(34, 197, 94, 0.16);
           color: #22c55e;
@@ -936,7 +938,7 @@ const Products = () => {
         }
 
         .product-skeleton {
-          border-radius: 18px;
+          border-radius: 0;
           background: var(--card);
           border: 1px solid var(--border);
           padding: 14px;
@@ -954,7 +956,7 @@ const Products = () => {
         .skeleton-footer,
         .skeleton-image {
           display: block;
-          border-radius: 10px;
+          border-radius: 0;
           background: linear-gradient(
             90deg,
             rgba(148,163,184,0.08),
@@ -1015,7 +1017,6 @@ const Products = () => {
 
           .products-hero {
             padding: 18px;
-            border-radius: 18px;
           }
 
           .products-hero h1 {
@@ -1061,7 +1062,7 @@ const Products = () => {
           }
 
           .product-image {
-            height: 210px;
+            aspect-ratio: 4 / 3;
           }
         }
       `}</style>
