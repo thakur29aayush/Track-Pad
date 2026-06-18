@@ -37,6 +37,23 @@ const Products = () => {
   const [type, setType] = useState("ALL");
   const [priceFilter, setPriceFilter] = useState("ALL");
   const [sortBy, setSortBy] = useState("LATEST");
+  const [imageRatios, setImageRatios] = useState({});
+
+  const DEFAULT_RATIO = 4 / 3;
+  const MIN_RATIO = 0.65;
+  const MAX_RATIO = 1.85;
+
+  const handleImageLoad = (id, img) => {
+    if (!img?.naturalWidth || !img?.naturalHeight) return;
+
+    const rawRatio = img.naturalWidth / img.naturalHeight;
+    const clampedRatio = Math.min(MAX_RATIO, Math.max(MIN_RATIO, rawRatio));
+
+    setImageRatios((prev) => {
+      if (prev[id] === clampedRatio) return prev;
+      return { ...prev, [id]: clampedRatio };
+    });
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -366,9 +383,18 @@ const Products = () => {
                   </label>
 
                   <Link to={`/products/${productSlug}`} className="product-link">
-                    <div className="product-image">
+                    <div
+                      className="product-image"
+                      style={{
+                        aspectRatio: imageRatios[product.id] || DEFAULT_RATIO,
+                      }}
+                    >
                       {imageUrl ? (
-                        <img src={imageUrl} alt={product.title} />
+                        <img
+                          src={imageUrl}
+                          alt={product.title}
+                          onLoad={(e) => handleImageLoad(product.id, e.currentTarget)}
+                        />
                       ) : (
                         <span>{product.title?.[0]?.toUpperCase() || "P"}</span>
                       )}
