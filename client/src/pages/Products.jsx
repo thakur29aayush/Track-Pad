@@ -797,21 +797,21 @@ const Products = () => {
  .product-image {
   width: 100%;
   aspect-ratio: 16 / 9;
+  background: #2b2b2b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   overflow: hidden;
-  background: #ffffff;
   border-bottom: 1px solid var(--border);
-  display: block;
-  line-height: 0;
 }
 
 .product-image img {
   width: 100%;
   height: 100%;
-  display: block;
   object-fit: contain;
   object-position: center;
-  background: #ffffff;
-  transition: none;
+  background: #2b2b2b;
+  display: block;
 }
 
 .product-card:hover .product-image img {
