@@ -1,23 +1,37 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  Edit3,
   Package,
   Plus,
   RefreshCw,
   Search,
-  Trash2,
   Tag,
+  Trash2,
   TrendingUp,
+  X,
 } from "lucide-react";
 import ProductForm from "../components/admin/ProductForm";
-import Button from "../components/common/Button";
-import { createProduct, deleteProduct } from "../services/adminApi";
+import {
+  createProduct,
+  deleteProduct,
+  updateProduct,
+} from "../services/adminApi";
 import { getProducts } from "../services/productApi";
+
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
+const getImageUrl = (image) => {
+  if (!image) return "";
+  if (image.startsWith("http")) return image;
+  return `${API_URL}${image}`;
+};
 
 const AdminProducts = () => {
   const [products, setProducts] = useState([]);
   const [status, setStatus] = useState("Loading products...");
   const [query, setQuery] = useState("");
   const [deletingId, setDeletingId] = useState("");
+  const [editingProduct, setEditingProduct] = useState(null);
 
   const load = async () => {
     try {
@@ -35,13 +49,20 @@ const AdminProducts = () => {
     load();
   }, []);
 
-  const handleCreate = async (payload) => {
-    await createProduct(payload);
+  const handleSubmit = async (payload) => {
+    if (editingProduct) {
+      await updateProduct(editingProduct.id, payload);
+      setEditingProduct(null);
+    } else {
+      await createProduct(payload);
+    }
+
     await load();
   };
 
   const handleDelete = async (id) => {
     if (!confirm("Disable this product?")) return;
+
     try {
       setDeletingId(id);
       await deleteProduct(id);
@@ -53,27 +74,44 @@ const AdminProducts = () => {
 
   const filteredProducts = useMemo(() => {
     const clean = query.toLowerCase().trim();
+
     if (!clean) return products;
-    return products.filter((p) =>
-      p.title?.toLowerCase().includes(clean) ||
-      p.type?.toLowerCase().includes(clean) ||
-      p.deliveryType?.toLowerCase().includes(clean)
+
+    return products.filter(
+      (p) =>
+        p.title?.toLowerCase().includes(clean) ||
+        p.type?.toLowerCase().includes(clean) ||
+        p.deliveryType?.toLowerCase().includes(clean)
     );
   }, [products, query]);
 
   const stats = useMemo(() => {
     const types = [...new Set(products.map((p) => p.type).filter(Boolean))];
-    return { total: products.length, types: types.length };
+
+    return {
+      total: products.length,
+      types: types.length,
+    };
   }, [products]);
 
   return (
     <section className="admin-products-page">
       <header className="admin-products-header">
         <div>
-          <p className="eyebrow"><Package size={13} /> Admin Products</p>
-          <h1>Product <span>Manager</span></h1>
-          <p>Add, manage, and disable digital products, templates, files, and booking-based offers.</p>
+          <p className="eyebrow">
+            <Package size={13} /> Admin Products
+          </p>
+
+          <h1>
+            Product <span>Manager</span>
+          </h1>
+
+          <p>
+            Add, edit, manage, and disable digital products, templates, files,
+            and booking-based offers.
+          </p>
         </div>
+
         <div className="header-stats">
           <div className="header-stat">
             <TrendingUp size={15} className="hstat-icon" />
@@ -82,6 +120,7 @@ const AdminProducts = () => {
               <span>Active Products</span>
             </div>
           </div>
+
           <div className="header-stat">
             <Tag size={15} className="hstat-icon" />
             <div>
@@ -95,27 +134,63 @@ const AdminProducts = () => {
       <div className="admin-products-layout">
         <div className="product-form-panel">
           <div className="panel-head">
-            <h2><Plus size={15} /> Add Product</h2>
-            <p>Create a new product for the store.</p>
+            <h2>
+              {editingProduct ? <Edit3 size={15} /> : <Plus size={15} />}
+              {editingProduct ? "Edit Product" : "Add Product"}
+            </h2>
+
+            <p>
+              {editingProduct
+                ? "Update this product, including thumbnail and tutorial image."
+                : "Create a new product for the store."}
+            </p>
+
+            {editingProduct && (
+              <button
+                type="button"
+                className="cancel-edit-btn"
+                onClick={() => setEditingProduct(null)}
+              >
+                <X size={13} />
+                Cancel edit
+              </button>
+            )}
           </div>
-          <ProductForm onSubmit={handleCreate} />
+
+          <ProductForm
+            key={editingProduct?.id || "create-product"}
+            product={editingProduct}
+            onSubmit={handleSubmit}
+            submitLabel={editingProduct ? "Update Product" : "Create Product"}
+          />
         </div>
 
         <div className="products-table-panel">
           <div className="products-toolbar">
             <div>
-              <h2><Package size={15} /> Products</h2>
-              <p>{status || `${filteredProducts.length} product${filteredProducts.length !== 1 ? "s" : ""} listed`}</p>
+              <h2>
+                <Package size={15} /> Products
+              </h2>
+
+              <p>
+                {status ||
+                  `${filteredProducts.length} product${
+                    filteredProducts.length !== 1 ? "s" : ""
+                  } listed`}
+              </p>
             </div>
+
             <div className="toolbar-actions">
               <div className="product-search">
                 <Search size={14} />
+
                 <input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search products…"
                 />
               </div>
+
               <button type="button" className="refresh-btn" onClick={load}>
                 <RefreshCw size={14} />
               </button>
@@ -130,53 +205,81 @@ const AdminProducts = () => {
                   <th>Price</th>
                   <th>Type</th>
                   <th>Delivery</th>
-                  <th>Action</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
+
               <tbody>
                 {filteredProducts.map((product) => (
-                  <tr key={product.id}>
+                  <tr
+                    key={product.id}
+                    className={
+                      editingProduct?.id === product.id ? "editing-row" : ""
+                    }
+                  >
                     <td>
                       <div className="product-cell">
                         <div className="product-thumb">
                           {product.thumbnail ? (
-                            <img src={product.thumbnail} alt={product.title} />
+                            <img
+                              src={getImageUrl(product.thumbnail)}
+                              alt={product.title}
+                            />
                           ) : (
                             <span>{product.title?.slice(0, 1) || "P"}</span>
                           )}
                         </div>
+
                         <div>
                           <strong>{product.title || "Untitled product"}</strong>
                           <small>{product.slug || "no-slug"}</small>
                         </div>
                       </div>
                     </td>
+
                     <td>
-                      <span className="price-val">₹{Number(product.price || 0).toLocaleString("en-IN")}</span>
+                      <span className="price-val">
+                        ₹{Number(product.price || 0).toLocaleString("en-IN")}
+                      </span>
                     </td>
+
                     <td>
                       <span className="type-pill">
                         {product.type?.replaceAll("_", " ") || "Product"}
                       </span>
                     </td>
+
                     <td>
                       <span className="delivery-text">
                         {product.deliveryType?.replaceAll("_", " ") || "N/A"}
                       </span>
                     </td>
+
                     <td>
-                      <button
-                        type="button"
-                        className="disable-btn"
-                        title="Disable product"
-                        disabled={deletingId === product.id}
-                        onClick={() => handleDelete(product.id)}
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                      <div className="action-buttons">
+                        <button
+                          type="button"
+                          className="edit-btn"
+                          title="Edit product"
+                          onClick={() => setEditingProduct(product)}
+                        >
+                          <Edit3 size={14} />
+                        </button>
+
+                        <button
+                          type="button"
+                          className="disable-btn"
+                          title="Disable product"
+                          disabled={deletingId === product.id}
+                          onClick={() => handleDelete(product.id)}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
+
                 {!filteredProducts.length && !status && (
                   <tr>
                     <td colSpan="5">
@@ -194,12 +297,6 @@ const AdminProducts = () => {
       </div>
 
       <style>{`
-        * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
-        *::-webkit-scrollbar { width: 6px; height: 6px; }
-        *::-webkit-scrollbar-track { background: transparent; }
-        *::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
-        *::-webkit-scrollbar-corner { background: transparent; }
-
         .admin-products-page {
           padding: 18px 0 42px;
           font-family: Inter, "DM Sans", system-ui, sans-serif;
@@ -274,7 +371,9 @@ const AdminProducts = () => {
           border: 1px solid var(--border);
         }
 
-        .hstat-icon { color: #16a34a; }
+        .hstat-icon {
+          color: #16a34a;
+        }
 
         .header-stat strong {
           display: block;
@@ -311,9 +410,13 @@ const AdminProducts = () => {
           overflow: hidden;
         }
 
-        .product-form-panel { padding: 18px; }
+        .product-form-panel {
+          padding: 18px;
+        }
 
-        .panel-head { margin-bottom: 14px; }
+        .panel-head {
+          margin-bottom: 14px;
+        }
 
         .panel-head h2,
         .products-toolbar h2 {
@@ -327,7 +430,9 @@ const AdminProducts = () => {
         }
 
         .panel-head h2 svg,
-        .products-toolbar h2 svg { color: #16a34a; }
+        .products-toolbar h2 svg {
+          color: #16a34a;
+        }
 
         .panel-head p,
         .products-toolbar p {
@@ -335,6 +440,27 @@ const AdminProducts = () => {
           color: var(--muted);
           font-size: 0.78rem;
           font-weight: 700;
+        }
+
+        .cancel-edit-btn {
+          margin-top: 10px;
+          height: 34px;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 0 11px;
+          border-radius: 10px;
+          border: 1px solid var(--border);
+          background: var(--bg);
+          color: var(--muted);
+          cursor: pointer;
+          font-size: 0.76rem;
+          font-weight: 850;
+        }
+
+        .cancel-edit-btn:hover {
+          color: #ef4444;
+          border-color: rgba(239,68,68,0.35);
         }
 
         .products-toolbar {
@@ -365,11 +491,6 @@ const AdminProducts = () => {
           color: #16a34a;
         }
 
-        .product-search:focus-within {
-          border-color: rgba(22,163,74,0.55);
-          box-shadow: 0 0 0 3px rgba(22,163,74,0.08);
-        }
-
         .product-search input {
           width: 100%;
           border: 0;
@@ -392,13 +513,13 @@ const AdminProducts = () => {
           cursor: pointer;
         }
 
-        .refresh-btn:hover { border-color: rgba(22,163,74,0.4); color: #16a34a; }
-
-        .admin-products-table-wrap { overflow-x: auto; }
+        .admin-products-table-wrap {
+          overflow-x: auto;
+        }
 
         .products-table-panel table {
           width: 100%;
-          min-width: 680px;
+          min-width: 720px;
           border-collapse: collapse;
         }
 
@@ -421,10 +542,9 @@ const AdminProducts = () => {
           white-space: nowrap;
         }
 
-        .products-table-panel tr:last-child td { border-bottom: none; }
-
-        .products-table-panel tbody tr { transition: background 0.15s ease; }
-        .products-table-panel tbody tr:hover { background: rgba(22,163,74,0.025); }
+        .editing-row {
+          background: rgba(22,163,74,0.06);
+        }
 
         .product-cell {
           display: flex;
@@ -447,7 +567,11 @@ const AdminProducts = () => {
           font-weight: 950;
         }
 
-        .product-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .product-thumb img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
 
         .product-cell strong {
           display: block;
@@ -492,6 +616,13 @@ const AdminProducts = () => {
           white-space: nowrap;
         }
 
+        .action-buttons {
+          display: flex;
+          align-items: center;
+          gap: 7px;
+        }
+
+        .edit-btn,
         .disable-btn {
           width: 34px;
           height: 34px;
@@ -499,15 +630,30 @@ const AdminProducts = () => {
           place-items: center;
           border-radius: 10px;
           border: 0;
-          background: rgba(239,68,68,0.1);
-          color: #ef4444;
           cursor: pointer;
-          transition: opacity 0.15s, transform 0.1s;
         }
 
-        .disable-btn:hover { opacity: 0.8; transform: scale(1.07); }
-        .disable-btn:active { transform: scale(0.95); }
-        .disable-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .edit-btn {
+          background: rgba(22,163,74,0.1);
+          color: #16a34a;
+        }
+
+        .disable-btn {
+          background: rgba(239,68,68,0.1);
+          color: #ef4444;
+        }
+
+        .edit-btn:hover,
+        .disable-btn:hover {
+          opacity: 0.82;
+          transform: scale(1.05);
+        }
+
+        .disable-btn:disabled {
+          opacity: 0.4;
+          cursor: not-allowed;
+          transform: none;
+        }
 
         .empty-row {
           display: flex;
@@ -521,20 +667,46 @@ const AdminProducts = () => {
           font-weight: 800;
         }
 
-        .empty-row svg { opacity: 0.3; }
+        .empty-row svg {
+          opacity: 0.3;
+        }
 
         @media (max-width: 1100px) {
-          .admin-products-layout { grid-template-columns: 1fr; }
+          .admin-products-layout {
+            grid-template-columns: 1fr;
+          }
         }
 
         @media (max-width: 760px) {
-          .admin-products-header { grid-template-columns: 1fr; padding: 18px; }
-          .header-stats { flex-direction: column; }
-          .header-stat { width: 100%; }
-          .products-toolbar { flex-direction: column; align-items: stretch; }
-          .toolbar-actions { flex-direction: column; }
-          .product-search { width: 100%; }
-          .refresh-btn { width: 100%; border-radius: 11px; }
+          .admin-products-header {
+            grid-template-columns: 1fr;
+            padding: 18px;
+          }
+
+          .header-stats {
+            flex-direction: column;
+          }
+
+          .header-stat {
+            width: 100%;
+          }
+
+          .products-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+          }
+
+          .toolbar-actions {
+            flex-direction: column;
+          }
+
+          .product-search {
+            width: 100%;
+          }
+
+          .refresh-btn {
+            width: 100%;
+          }
         }
       `}</style>
     </section>

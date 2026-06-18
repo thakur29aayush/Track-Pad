@@ -37,23 +37,6 @@ const Products = () => {
   const [type, setType] = useState("ALL");
   const [priceFilter, setPriceFilter] = useState("ALL");
   const [sortBy, setSortBy] = useState("LATEST");
-  const [imageRatios, setImageRatios] = useState({});
-
-  const DEFAULT_RATIO = 4 / 3;
-  const MIN_RATIO = 0.65;
-  const MAX_RATIO = 1.85;
-
-  const handleImageLoad = (id, img) => {
-    if (!img?.naturalWidth || !img?.naturalHeight) return;
-
-    const rawRatio = img.naturalWidth / img.naturalHeight;
-    const clampedRatio = Math.min(MAX_RATIO, Math.max(MIN_RATIO, rawRatio));
-
-    setImageRatios((prev) => {
-      if (prev[id] === clampedRatio) return prev;
-      return { ...prev, [id]: clampedRatio };
-    });
-  };
 
   useEffect(() => {
     const load = async () => {
@@ -76,10 +59,7 @@ const Products = () => {
   }, []);
 
   const productTypes = useMemo(() => {
-    const uniqueTypes = [
-      ...new Set(products.map((p) => p.type).filter(Boolean)),
-    ];
-
+    const uniqueTypes = [...new Set(products.map((p) => p.type).filter(Boolean))];
     return ["ALL", ...uniqueTypes];
   }, [products]);
 
@@ -103,7 +83,6 @@ const Products = () => {
       const matchesQuery =
         !cleanQuery ||
         p.title?.toLowerCase().includes(cleanQuery) ||
-        p.description?.toLowerCase().includes(cleanQuery) ||
         p.type?.toLowerCase().includes(cleanQuery) ||
         p.deliveryType?.toLowerCase().includes(cleanQuery);
 
@@ -331,7 +310,6 @@ const Products = () => {
               <div className="skeleton-image" />
               <span className="skeleton-tag" />
               <strong className="skeleton-title" />
-              <p className="skeleton-text" />
               <em className="skeleton-footer" />
             </div>
           ))}
@@ -383,18 +361,9 @@ const Products = () => {
                   </label>
 
                   <Link to={`/products/${productSlug}`} className="product-link">
-                    <div
-                      className="product-image"
-                      style={{
-                        aspectRatio: imageRatios[product.id] || DEFAULT_RATIO,
-                      }}
-                    >
+                    <div className="product-image">
                       {imageUrl ? (
-                        <img
-                          src={imageUrl}
-                          alt={product.title}
-                          onLoad={(e) => handleImageLoad(product.id, e.currentTarget)}
-                        />
+                        <img src={imageUrl} alt={product.title || "Product"} />
                       ) : (
                         <span>{product.title?.[0]?.toUpperCase() || "P"}</span>
                       )}
@@ -406,8 +375,6 @@ const Products = () => {
                       </span>
 
                       <h3>{product.title || "Untitled Product"}</h3>
-
-                      <p>{product.description || "No description available."}</p>
 
                       <div className="price-row">
                         {price > 0 ? (
@@ -877,22 +844,11 @@ const Products = () => {
         }
 
         .product-info h3 {
-          margin: 10px 0 6px;
+          margin: 10px 0 14px;
           color: var(--text);
           font-size: 1.15rem;
           line-height: 1.15;
           font-weight: 950;
-        }
-
-        .product-info p {
-          margin: 0 0 12px;
-          color: var(--muted);
-          font-size: 0.78rem;
-          line-height: 1.45;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
         }
 
         .price-row {
@@ -978,7 +934,6 @@ const Products = () => {
 
         .skeleton-tag,
         .skeleton-title,
-        .skeleton-text,
         .skeleton-footer,
         .skeleton-image {
           display: block;
@@ -1002,12 +957,6 @@ const Products = () => {
         .skeleton-title {
           width: 70%;
           height: 16px;
-          margin-bottom: 10px;
-        }
-
-        .skeleton-text {
-          width: 100%;
-          height: 36px;
           margin-bottom: 12px;
         }
 
@@ -1085,10 +1034,6 @@ const Products = () => {
           .products-skeleton-grid,
           .products-grid {
             grid-template-columns: 1fr;
-          }
-
-          .product-image {
-            aspect-ratio: 4 / 3;
           }
         }
       `}</style>

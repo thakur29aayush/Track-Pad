@@ -1,5 +1,11 @@
 import api from "./api";
 
+const multipartConfig = {
+  headers: {
+    "Content-Type": "multipart/form-data",
+  },
+};
+
 export const getAdminStats = async () => {
   const res = await api.get("/admin/stats");
   return res.data.stats;
@@ -36,12 +42,12 @@ export const deleteUser = async (id) => {
 };
 
 export const createProduct = async (payload) => {
-  const res = await api.post("/admin/products", payload);
+  const res = await api.post("/admin/products", payload, multipartConfig);
   return res.data.product;
 };
 
 export const updateProduct = async (id, payload) => {
-  const res = await api.put(`/admin/products/${id}`, payload);
+  const res = await api.put(`/admin/products/${id}`, payload, multipartConfig);
   return res.data.product;
 };
 

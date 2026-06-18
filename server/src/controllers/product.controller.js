@@ -4,10 +4,6 @@ const createSlug = require("../utils/slug");
 
 const productSchema = z.object({
   title: z.string().trim().min(2, "Title must be at least 2 characters."),
-  description: z
-    .string()
-    .trim()
-    .min(5, "Description must be at least 5 characters."),
 
   price: z.coerce
     .number()
@@ -55,14 +51,10 @@ const buildUniqueSlug = async (title, currentProductId = null) => {
   const baseSlug = createSlug(title);
 
   const existingProduct = await prisma.product.findUnique({
-    where: {
-      slug: baseSlug,
-    },
+    where: { slug: baseSlug },
   });
 
-  if (!existingProduct) {
-    return baseSlug;
-  }
+  if (!existingProduct) return baseSlug;
 
   if (currentProductId && existingProduct.id === currentProductId) {
     return baseSlug;
@@ -74,12 +66,8 @@ const buildUniqueSlug = async (title, currentProductId = null) => {
 async function getProducts(req, res, next) {
   try {
     const products = await prisma.product.findMany({
-      where: {
-        isActive: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
+      where: { isActive: true },
+      orderBy: { createdAt: "desc" },
     });
 
     res.json({ products });
@@ -91,9 +79,7 @@ async function getProducts(req, res, next) {
 async function getProductBySlug(req, res, next) {
   try {
     const product = await prisma.product.findUnique({
-      where: {
-        slug: req.params.slug,
-      },
+      where: { slug: req.params.slug },
     });
 
     if (!product || !product.isActive) {
@@ -112,7 +98,13 @@ async function createProduct(req, res, next) {
   try {
     const data = productSchema.parse(req.body);
 
-    const thumbnail = req.file ? `/uploads/${req.file.filename}` : null;
+    const thumbnail = req.files?.thumbnail?.[0]
+      ? `/uploads/${req.files.thumbnail[0].filename}`
+      : null;
+
+    const tutorialImage = req.files?.tutorialImage?.[0]
+      ? `/uploads/${req.files.tutorialImage[0].filename}`
+      : null;
 
     const slug = await buildUniqueSlug(data.title);
 
@@ -120,12 +112,12 @@ async function createProduct(req, res, next) {
       data: {
         title: data.title,
         slug,
-        description: data.description,
         price: data.price,
         currency: "INR",
         type: data.type,
         deliveryType: data.deliveryType,
         thumbnail,
+        tutorialImage,
         deliveryUrl: data.deliveryUrl,
         fileUrl: data.fileUrl,
         isActive: data.isActive,
@@ -143,9 +135,7 @@ async function updateProduct(req, res, next) {
     const data = updateProductSchema.parse(req.body);
 
     const existingProduct = await prisma.product.findUnique({
-      where: {
-        id: req.params.id,
-      },
+      where: { id: req.params.id },
     });
 
     if (!existingProduct) {
@@ -154,23 +144,25 @@ async function updateProduct(req, res, next) {
       });
     }
 
-    const thumbnail = req.file
-      ? {
-          thumbnail: `/uploads/${req.file.filename}`,
-        }
-      : {};
+    const imageUpdates = {};
+
+    if (req.files?.thumbnail?.[0]) {
+      imageUpdates.thumbnail = `/uploads/${req.files.thumbnail[0].filename}`;
+    }
+
+    if (req.files?.tutorialImage?.[0]) {
+      imageUpdates.tutorialImage = `/uploads/${req.files.tutorialImage[0].filename}`;
+    }
 
     const slug = data.title
       ? await buildUniqueSlug(data.title, req.params.id)
       : existingProduct.slug;
 
     const product = await prisma.product.update({
-      where: {
-        id: req.params.id,
-      },
+      where: { id: req.params.id },
       data: {
         ...data,
-        ...thumbnail,
+        ...imageUpdates,
         slug,
       },
     });
@@ -184,12 +176,8 @@ async function updateProduct(req, res, next) {
 async function deleteProduct(req, res, next) {
   try {
     await prisma.product.update({
-      where: {
-        id: req.params.id,
-      },
-      data: {
-        isActive: false,
-      },
+      where: { id: req.params.id },
+      data: { isActive: false },
     });
 
     res.json({

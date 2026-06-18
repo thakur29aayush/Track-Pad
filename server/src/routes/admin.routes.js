@@ -47,7 +47,23 @@ router.patch("/users/:id/unsuspend", unsuspendAdminUser);
 router.delete("/users/:id", deleteAdminUser);
 
 router.post("/products", upload.single("thumbnail"), createProduct);
-router.put("/products/:id", upload.single("thumbnail"), updateProduct);
+router.post(
+  "/products",
+  upload.fields([
+    { name: "thumbnail", maxCount: 1 },
+    { name: "tutorialImage", maxCount: 1 },
+  ]),
+  createProduct
+);
+
+router.put(
+  "/products/:id",
+  upload.fields([
+    { name: "thumbnail", maxCount: 1 },
+    { name: "tutorialImage", maxCount: 1 },
+  ]),
+  updateProduct
+);
 router.delete("/products/:id", deleteProduct);
 
 router.get("/counselling", getAdminBookings);

@@ -7,6 +7,7 @@ import {
   Download,
   ExternalLink,
   FileText,
+  HelpCircle,
   Lock,
   ShieldCheck,
   ShoppingBag,
@@ -18,10 +19,10 @@ import { useAuth } from "../context/AuthContext";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
-const getImageUrl = (thumbnail) => {
-  if (!thumbnail) return null;
-  if (thumbnail.startsWith("http")) return thumbnail;
-  return `${API_URL}${thumbnail}`;
+const getImageUrl = (image) => {
+  if (!image) return null;
+  if (image.startsWith("http")) return image;
+  return `${API_URL}${image}`;
 };
 
 const loadRazorpayScript = () => {
@@ -62,7 +63,7 @@ const ProductDetails = () => {
         } else {
           setStatus("Product not found.");
         }
-      } catch (err) {
+      } catch {
         if (isMounted) setStatus("Product not found.");
       }
     };
@@ -77,6 +78,11 @@ const ProductDetails = () => {
   const imageUrl = useMemo(
     () => getImageUrl(product?.thumbnail),
     [product?.thumbnail]
+  );
+
+  const tutorialImageUrl = useMemo(
+    () => getImageUrl(product?.tutorialImage),
+    [product?.tutorialImage]
   );
 
   const price = useMemo(() => Number(product?.price || 0), [product?.price]);
@@ -212,9 +218,7 @@ const ProductDetails = () => {
             margin: 56px auto;
             padding: 24px 20px;
             border-radius: 20px;
-            background:
-              radial-gradient(circle at top, rgba(34, 197, 94, 0.08), transparent 36%),
-              var(--card, #ffffff);
+            background: var(--card, #ffffff);
             border: 1px solid var(--border, #e2e8f0);
             text-align: center;
             box-shadow: var(--shadow, 0 18px 45px rgba(15, 23, 42, 0.06));
@@ -267,12 +271,7 @@ const ProductDetails = () => {
             </span>
           </div>
 
-          <h1>{product.title || "Untitled Digital Blueprint"}</h1>
-
-          <p className="description">
-            {product.description ||
-              "No analytical breakdowns documented for this item."}
-          </p>
+          <h1>{product.title || "Untitled Digital Product"}</h1>
 
           <div className="purchase-box">
             <div className="price-area">
@@ -337,13 +336,30 @@ const ProductDetails = () => {
         </article>
       </div>
 
+      {tutorialImageUrl && (
+        <section className="tutorial-section">
+          <div className="tutorial-head">
+            <HelpCircle size={17} />
+            <div>
+              <h2>How to use this product</h2>
+              <p>Follow this visual tutorial after purchase.</p>
+            </div>
+          </div>
+
+          <img
+            src={tutorialImageUrl}
+            alt={`Tutorial for ${product.title || "product"}`}
+          />
+        </section>
+      )}
+
       <div className="detail-extra">
         <div>
           <BadgeCheck size={16} />
           <h3>After purchase deployment</h3>
           <p>
-            This operational bundle registers permanently to your private library
-            dashboard profile instantly upon payment acknowledgement hooks.
+            This product registers permanently to your private library dashboard
+            instantly after payment confirmation.
           </p>
         </div>
 
@@ -351,9 +367,8 @@ const ProductDetails = () => {
           <DeliveryIcon size={16} />
           <h3>Distribution Logistics</h3>
           <p>
-            Delivery configuration runs via <strong>{deliveryLabel}</strong>{" "}
-            verification filters. Access paths initialize within your vault
-            environment automatically.
+            Delivery runs via <strong>{deliveryLabel}</strong>. Access paths
+            initialize inside your account vault automatically.
           </p>
         </div>
       </div>
@@ -491,25 +506,13 @@ const ProductDetails = () => {
         }
 
         .info-card h1 {
-          margin: 0;
+          margin: 0 0 16px;
           max-width: 620px;
           color: var(--text, #0f172a);
           font-size: clamp(1.55rem, 3vw, 2.35rem);
           line-height: 0.98;
           font-weight: 950;
           letter-spacing: -0.055em;
-        }
-
-        .description {
-          margin: 10px 0 14px;
-          color: var(--muted, #64748b);
-          font-size: 0.84rem;
-          line-height: 1.45;
-          font-weight: 550;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
         }
 
         .purchase-box {
@@ -638,6 +641,54 @@ const ProductDetails = () => {
           font-weight: 700;
         }
 
+        .tutorial-section {
+          margin-top: 12px;
+          padding: 16px;
+          border-radius: 22px;
+          background:
+            linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015)),
+            var(--card, #ffffff);
+          border: 1px solid var(--border, #e2e8f0);
+          box-shadow: var(--shadow, 0 18px 45px rgba(15, 23, 42, 0.06));
+        }
+
+        .tutorial-head {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 14px;
+        }
+
+        .tutorial-head svg {
+          color: #22c55e;
+          flex-shrink: 0;
+        }
+
+        .tutorial-head h2 {
+          margin: 0;
+          color: var(--text, #0f172a);
+          font-size: 1rem;
+          font-weight: 950;
+          letter-spacing: -0.025em;
+        }
+
+        .tutorial-head p {
+          margin: 3px 0 0;
+          color: var(--muted, #64748b);
+          font-size: 0.76rem;
+          font-weight: 700;
+        }
+
+        .tutorial-section img {
+          width: 100%;
+          max-height: 820px;
+          display: block;
+          object-fit: contain;
+          border-radius: 18px;
+          background: var(--bg, #f8fafc);
+          border: 1px solid var(--border, #e2e8f0);
+        }
+
         .detail-extra {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -713,10 +764,6 @@ const ProductDetails = () => {
           .product-detail-page {
             width: min(100% - 28px, 1040px);
             padding-top: 12px;
-          }
-
-          .back-link {
-            margin-bottom: 12px;
           }
 
           .info-card {
