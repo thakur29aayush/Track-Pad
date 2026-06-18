@@ -891,18 +891,28 @@ const Products = () => {
         }
 
         .product-image {
-          height: 165px;
-          background: var(--bg);
-          display: grid;
-          place-items: center;
-          overflow: hidden;
-        }
+  height: 185px;
+  background:
+    linear-gradient(135deg, rgba(34, 197, 94, 0.08), rgba(245, 216, 0, 0.06)),
+    var(--bg);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
 
-        .product-image img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  padding: 12px;
+  display: block;
+  background: var(--bg);
+}
+  .product-card:hover .product-image img {
+  transform: none;
+}
 
         .product-image span {
           font-size: 3rem;
