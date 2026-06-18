@@ -12,8 +12,6 @@ const nullableText = z
 const productSchema = z.object({
   title: z.string().trim().min(2, "Title must be at least 2 characters."),
 
-  description: nullableText,
-
   price: z.coerce
     .number()
     .int("Price must be a whole number.")
@@ -110,7 +108,6 @@ async function createProduct(req, res, next) {
     const product = await prisma.product.create({
       data: {
         title: data.title,
-        description: data.description,
         slug,
         price: data.price,
         currency: "INR",
