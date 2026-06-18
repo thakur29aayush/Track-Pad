@@ -56,7 +56,6 @@ const AdminDashboard = () => {
     <section className="admin-page">
       <header className="admin-header">
         <div>
-          <p className="admin-eyebrow"><ShieldCheck size={13} /> Admin Control</p>
           <h1>Welcome back, <span>Admin.</span></h1>
           <p>Manage products, orders, customers, and counselling bookings from one clean dashboard.</p>
         </div>

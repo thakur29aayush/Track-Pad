@@ -38,10 +38,6 @@ const MyPurchases = () => {
     <section className="purchases-page">
       <header className="purchases-header">
         <div>
-          <p className="purchases-eyebrow">
-            <Library size={12} />
-            Library
-          </p>
 
           <h1>My Purchases</h1>
 
