@@ -59,7 +59,10 @@ const Products = () => {
   }, []);
 
   const productTypes = useMemo(() => {
-    const uniqueTypes = [...new Set(products.map((p) => p.type).filter(Boolean))];
+    const uniqueTypes = [
+      ...new Set(products.map((p) => p.type).filter(Boolean)),
+    ];
+
     return ["ALL", ...uniqueTypes];
   }, [products]);
 
@@ -169,10 +172,12 @@ const Products = () => {
               <CheckCircle2 size={12} />
               Instant access
             </span>
+
             <span>
               <Zap size={12} />
               One checkout
             </span>
+
             <span>
               <Star size={12} />
               Premium resources
@@ -203,6 +208,7 @@ const Products = () => {
       <div className="catalog-panel">
         <div className="catalog-search">
           <Search size={15} />
+
           <input
             type="text"
             placeholder="Search templates, planners, trackers..."
@@ -225,6 +231,7 @@ const Products = () => {
         <div className="catalog-filters-row">
           <div className="filter-field">
             <SlidersHorizontal size={14} />
+
             <select value={type} onChange={(e) => setType(e.target.value)}>
               {productTypes.map((item) => (
                 <option key={item} value={item}>
@@ -236,6 +243,7 @@ const Products = () => {
 
           <div className="filter-field">
             <Filter size={14} />
+
             <select
               value={priceFilter}
               onChange={(e) => setPriceFilter(e.target.value)}
@@ -248,6 +256,7 @@ const Products = () => {
 
           <div className="filter-field">
             <ArrowDownAZ size={14} />
+
             <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
               <option value="LATEST">Latest First</option>
               <option value="PRICE_LOW">Price: Low to High</option>
@@ -398,26 +407,6 @@ const Products = () => {
       )}
 
       <style>{`
-        * {
-          box-sizing: border-box;
-          scrollbar-width: thin;
-          scrollbar-color: var(--border) transparent;
-        }
-
-        *::-webkit-scrollbar {
-          width: 5px;
-          height: 5px;
-        }
-
-        *::-webkit-scrollbar-track {
-          background: transparent;
-        }
-
-        *::-webkit-scrollbar-thumb {
-          background: var(--border);
-          border-radius: 99px;
-        }
-
         .products-page {
           width: min(1120px, 92%);
           margin: 0 auto;
@@ -443,19 +432,6 @@ const Products = () => {
           border: 1px solid var(--border);
           box-shadow: var(--shadow);
           overflow: hidden;
-        }
-
-        .products-hero::before {
-          content: "";
-          position: absolute;
-          right: -80px;
-          top: -80px;
-          width: 190px;
-          height: 190px;
-          border-radius: 999px;
-          background: rgba(245, 216, 0, 0.13);
-          filter: blur(14px);
-          pointer-events: none;
         }
 
         .hero-content {
@@ -610,11 +586,6 @@ const Products = () => {
           font-weight: 600;
         }
 
-        .catalog-search input::placeholder {
-          color: var(--muted);
-          font-weight: 500;
-        }
-
         .icon-clear {
           width: 22px;
           height: 22px;
@@ -717,10 +688,6 @@ const Products = () => {
           font-weight: 800;
         }
 
-        .meta-loading {
-          color: var(--muted);
-        }
-
         .clear-inline {
           border: 0;
           background: transparent;
@@ -773,65 +740,6 @@ const Products = () => {
           display: grid;
           grid-template-columns: repeat(3, minmax(0, 1fr));
           gap: 18px;
-        }
-
-        .product-skeleton {
-          border-radius: 18px;
-          background: var(--card);
-          border: 1px solid var(--border);
-          padding: 14px;
-          box-shadow: var(--shadow);
-        }
-
-        .product-skeleton div,
-        .product-skeleton span,
-        .product-skeleton strong,
-        .product-skeleton p,
-        .product-skeleton em {
-          display: block;
-          border-radius: 10px;
-          background: linear-gradient(
-            90deg,
-            rgba(148,163,184,0.08),
-            rgba(148,163,184,0.16),
-            rgba(148,163,184,0.08)
-          );
-          background-size: 200% 100%;
-          animation: shimmer 1.45s infinite linear;
-        }
-
-        .skeleton-image {
-          height: 145px;
-          margin-bottom: 12px;
-        }
-
-        .skeleton-tag {
-          width: 30%;
-          height: 12px;
-          margin-bottom: 12px;
-        }
-
-        .skeleton-title {
-          width: 70%;
-          height: 16px;
-          margin-bottom: 10px;
-        }
-
-        .skeleton-text {
-          width: 100%;
-          height: 36px;
-          margin-bottom: 12px;
-        }
-
-        .skeleton-footer {
-          width: 50%;
-          height: 14px;
-        }
-
-        @keyframes shimmer {
-          to {
-            background-position: -200% 0;
-          }
         }
 
         .product-card {
@@ -907,8 +815,6 @@ const Products = () => {
           display: block;
           object-fit: cover;
           object-position: top center;
-          padding: 0;
-          background: transparent;
           transition: transform 0.35s ease;
         }
 
@@ -1019,7 +925,6 @@ const Products = () => {
           color: var(--text);
           font-size: 1.05rem;
           font-weight: 900;
-          letter-spacing: -0.02em;
         }
 
         .empty-products p {
@@ -1030,14 +935,69 @@ const Products = () => {
           line-height: 1.55;
         }
 
+        .product-skeleton {
+          border-radius: 18px;
+          background: var(--card);
+          border: 1px solid var(--border);
+          padding: 14px;
+          box-shadow: var(--shadow);
+        }
+
+        .skeleton-image {
+          height: 145px;
+          margin-bottom: 12px;
+        }
+
+        .skeleton-tag,
+        .skeleton-title,
+        .skeleton-text,
+        .skeleton-footer,
+        .skeleton-image {
+          display: block;
+          border-radius: 10px;
+          background: linear-gradient(
+            90deg,
+            rgba(148,163,184,0.08),
+            rgba(148,163,184,0.16),
+            rgba(148,163,184,0.08)
+          );
+          background-size: 200% 100%;
+          animation: shimmer 1.45s infinite linear;
+        }
+
+        .skeleton-tag {
+          width: 30%;
+          height: 12px;
+          margin-bottom: 12px;
+        }
+
+        .skeleton-title {
+          width: 70%;
+          height: 16px;
+          margin-bottom: 10px;
+        }
+
+        .skeleton-text {
+          width: 100%;
+          height: 36px;
+          margin-bottom: 12px;
+        }
+
+        .skeleton-footer {
+          width: 50%;
+          height: 14px;
+        }
+
+        @keyframes shimmer {
+          to {
+            background-position: -200% 0;
+          }
+        }
+
         @media (max-width: 960px) {
           .products-hero {
             grid-template-columns: 1fr;
             padding: 22px;
-          }
-
-          .products-stats {
-            max-width: 100%;
           }
 
           .products-skeleton-grid,
@@ -1066,17 +1026,9 @@ const Products = () => {
             font-size: 0.86rem;
           }
 
-          .hero-pills {
-            gap: 7px;
-          }
-
           .hero-pills span {
             width: 100%;
             justify-content: center;
-          }
-
-          .catalog-panel {
-            border-radius: 18px;
           }
 
           .catalog-filters-row {
@@ -1098,10 +1050,7 @@ const Products = () => {
             flex-direction: column;
           }
 
-          .catalog-actions {
-            width: 100%;
-          }
-
+          .catalog-actions,
           .checkout-btn {
             width: 100%;
           }
