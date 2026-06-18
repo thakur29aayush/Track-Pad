@@ -1,6 +1,14 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ImagePlus, Trash2, UploadCloud } from "lucide-react";
 import Button from "../common/Button";
+
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
+const getImageUrl = (image) => {
+  if (!image) return "";
+  if (image.startsWith("http")) return image;
+  return `${API_URL}${image}`;
+};
 
 const initialState = {
   title: "",
@@ -10,17 +18,28 @@ const initialState = {
   type: "DIGITAL_PRODUCT",
   deliveryType: "LINK",
   thumbnail: null,
+  tutorialImage: null,
   deliveryUrl: "",
   fileUrl: "",
   isActive: true,
 };
 
-const ProductForm = ({ onSubmit }) => {
-  const fileInputRef = useRef(null);
+const ProductForm = ({
+  product = null,
+  onSubmit,
+  submitLabel = "Save Product",
+}) => {
+  const thumbnailInputRef = useRef(null);
+  const tutorialInputRef = useRef(null);
 
   const [form, setForm] = useState(initialState);
-  const [preview, setPreview] = useState("");
+
+  const [thumbnailPreview, setThumbnailPreview] = useState("");
+  const [tutorialPreview, setTutorialPreview] = useState("");
+
   const [thumbnailName, setThumbnailName] = useState("");
+  const [tutorialName, setTutorialName] = useState("");
+
   const [status, setStatus] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -31,6 +50,37 @@ const ProductForm = ({ onSubmit }) => {
 
   const isFileDelivery =
     form.deliveryType === "FILE" || form.deliveryType === "BOTH";
+
+  useEffect(() => {
+    if (!product) {
+      setForm(initialState);
+      setThumbnailPreview("");
+      setTutorialPreview("");
+      setThumbnailName("");
+      setTutorialName("");
+      return;
+    }
+
+    setForm({
+      title: product.title || "",
+      description: product.description || "",
+      pricingType: Number(product.price || 0) <= 0 ? "FREE" : "PAID",
+      price: Number(product.price || 0),
+      type: product.type || "DIGITAL_PRODUCT",
+      deliveryType: product.deliveryType || "LINK",
+      thumbnail: null,
+      tutorialImage: null,
+      deliveryUrl: product.deliveryUrl || "",
+      fileUrl: product.fileUrl || "",
+      isActive: product.isActive ?? true,
+    });
+
+    setThumbnailPreview(getImageUrl(product.thumbnail));
+    setTutorialPreview(getImageUrl(product.tutorialImage));
+
+    setThumbnailName(product.thumbnail ? "Existing thumbnail image" : "");
+    setTutorialName(product.tutorialImage ? "Existing tutorial image" : "");
+  }, [product]);
 
   const update = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -46,25 +96,46 @@ const ProductForm = ({ onSubmit }) => {
 
   const resetThumbnail = () => {
     update("thumbnail", null);
-    setPreview("");
+    setThumbnailPreview("");
     setThumbnailName("");
 
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+    if (thumbnailInputRef.current) {
+      thumbnailInputRef.current.value = "";
     }
   };
 
-  const handleThumbnailChange = (e) => {
+  const resetTutorialImage = () => {
+    update("tutorialImage", null);
+    setTutorialPreview("");
+    setTutorialName("");
+
+    if (tutorialInputRef.current) {
+      tutorialInputRef.current.value = "";
+    }
+  };
+
+  const handleImageChange = (e, field) => {
     const file = e.target.files?.[0];
 
     if (!file) {
-      resetThumbnail();
+      if (field === "thumbnail") resetThumbnail();
+      if (field === "tutorialImage") resetTutorialImage();
       return;
     }
 
-    update("thumbnail", file);
-    setThumbnailName(file.name);
-    setPreview(URL.createObjectURL(file));
+    const previewUrl = URL.createObjectURL(file);
+
+    update(field, file);
+
+    if (field === "thumbnail") {
+      setThumbnailName(file.name);
+      setThumbnailPreview(previewUrl);
+    }
+
+    if (field === "tutorialImage") {
+      setTutorialName(file.name);
+      setTutorialPreview(previewUrl);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -87,6 +158,10 @@ const ProductForm = ({ onSubmit }) => {
         formData.append("thumbnail", form.thumbnail);
       }
 
+      if (form.tutorialImage) {
+        formData.append("tutorialImage", form.tutorialImage);
+      }
+
       if (isLinkDelivery) {
         formData.append("deliveryUrl", form.deliveryUrl.trim());
       }
@@ -97,8 +172,12 @@ const ProductForm = ({ onSubmit }) => {
 
       await onSubmit(formData);
 
-      setForm(initialState);
-      resetThumbnail();
+      if (!product) {
+        setForm(initialState);
+        resetThumbnail();
+        resetTutorialImage();
+      }
+
       setStatus("Product saved successfully.");
     } catch (error) {
       setStatus(error.response?.data?.message || "Failed to save product.");
@@ -184,56 +263,113 @@ const ProductForm = ({ onSubmit }) => {
         </label>
       </div>
 
-      <div className="thumbnail-field">
+      <div className="image-field">
         <span>Thumbnail Image</span>
 
         <input
-          ref={fileInputRef}
+          ref={thumbnailInputRef}
           type="file"
           accept="image/*"
-          className="thumbnail-input"
-          onChange={handleThumbnailChange}
+          className="image-input"
+          onChange={(e) => handleImageChange(e, "thumbnail")}
         />
 
         <div
-          className={`thumbnail-uploader ${preview ? "has-preview" : ""}`}
-          onClick={() => fileInputRef.current?.click()}
+          className={`image-uploader ${thumbnailPreview ? "has-preview" : ""}`}
+          onClick={() => thumbnailInputRef.current?.click()}
           role="button"
           tabIndex={0}
         >
-          {preview ? (
-            <img src={preview} alt="Thumbnail preview" />
+          {thumbnailPreview ? (
+            <img src={thumbnailPreview} alt="Thumbnail preview" />
           ) : (
-            <div className="thumbnail-empty">
-              <div className="thumbnail-icon">
+            <div className="image-empty">
+              <div className="image-icon">
                 <UploadCloud size={25} />
               </div>
 
-              <div className="thumbnail-text">
+              <div className="image-text">
                 <strong>Upload product thumbnail</strong>
-                <small>PNG, JPG, WEBP supported</small>
+                <small>This appears on product cards and product details.</small>
               </div>
 
-              <div className="thumbnail-choose-btn">
+              <div className="image-choose-btn">
                 <ImagePlus size={16} />
-                Choose Image
+                Choose Thumbnail
               </div>
             </div>
           )}
 
-          {preview && (
-            <div className="thumbnail-change-btn">
+          {thumbnailPreview && (
+            <div className="image-change-btn">
               <ImagePlus size={16} />
-              Change Image
+              Change Thumbnail
             </div>
           )}
         </div>
 
         {thumbnailName && (
-          <div className="thumbnail-meta">
+          <div className="image-meta">
             <p>{thumbnailName}</p>
 
             <button type="button" onClick={resetThumbnail}>
+              <Trash2 size={13} />
+              Remove
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="image-field">
+        <span>Tutorial Image</span>
+
+        <input
+          ref={tutorialInputRef}
+          type="file"
+          accept="image/*"
+          className="image-input"
+          onChange={(e) => handleImageChange(e, "tutorialImage")}
+        />
+
+        <div
+          className={`image-uploader ${tutorialPreview ? "has-preview" : ""}`}
+          onClick={() => tutorialInputRef.current?.click()}
+          role="button"
+          tabIndex={0}
+        >
+          {tutorialPreview ? (
+            <img src={tutorialPreview} alt="Tutorial preview" />
+          ) : (
+            <div className="image-empty">
+              <div className="image-icon">
+                <UploadCloud size={25} />
+              </div>
+
+              <div className="image-text">
+                <strong>Upload tutorial image</strong>
+                <small>This appears on the product details page.</small>
+              </div>
+
+              <div className="image-choose-btn">
+                <ImagePlus size={16} />
+                Choose Tutorial Image
+              </div>
+            </div>
+          )}
+
+          {tutorialPreview && (
+            <div className="image-change-btn">
+              <ImagePlus size={16} />
+              Change Tutorial
+            </div>
+          )}
+        </div>
+
+        {tutorialName && (
+          <div className="image-meta">
+            <p>{tutorialName}</p>
+
+            <button type="button" onClick={resetTutorialImage}>
               <Trash2 size={13} />
               Remove
             </button>
@@ -274,7 +410,7 @@ const ProductForm = ({ onSubmit }) => {
       {status && <p className="form-status">{status}</p>}
 
       <Button type="submit" disabled={saving}>
-        {saving ? "Saving..." : "Save Product"}
+        {saving ? "Saving..." : submitLabel}
       </Button>
 
       <style>{`
@@ -284,13 +420,13 @@ const ProductForm = ({ onSubmit }) => {
         }
 
         .admin-product-form label,
-        .thumbnail-field {
+        .image-field {
           display: grid;
           gap: 6px;
         }
 
         .admin-product-form span,
-        .thumbnail-field > span {
+        .image-field > span {
           color: var(--text);
           font-size: 0.74rem;
           font-weight: 900;
@@ -310,7 +446,10 @@ const ProductForm = ({ onSubmit }) => {
           padding: 9px 11px;
           font-size: 0.84rem;
           font-weight: 700;
-          transition: border-color 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+          transition:
+            border-color 0.18s ease,
+            box-shadow 0.18s ease,
+            opacity 0.18s ease;
         }
 
         .admin-product-form textarea {
@@ -345,15 +484,15 @@ const ProductForm = ({ onSubmit }) => {
           gap: 10px;
         }
 
-        .thumbnail-input {
+        .image-input {
           display: none;
         }
 
-        .thumbnail-uploader {
+        .image-uploader {
           width: 100%;
-          min-height: 250px;
+          min-height: 230px;
           overflow: hidden;
-          border-radius: 18px;
+          border-radius: 14px;
           border: 1px dashed rgba(22, 163, 74, 0.45);
           background:
             radial-gradient(circle at top left, rgba(22, 163, 74, 0.16), transparent 34%),
@@ -362,92 +501,96 @@ const ProductForm = ({ onSubmit }) => {
           cursor: pointer;
           display: grid;
           place-items: center;
-          padding: 26px 18px;
-          transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+          padding: 22px 16px;
+          transition:
+            transform 0.18s ease,
+            border-color 0.18s ease,
+            box-shadow 0.18s ease;
         }
 
-        .thumbnail-uploader:hover {
+        .image-uploader:hover {
           transform: translateY(-1px);
           border-color: rgba(22, 163, 74, 0.8);
           box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
         }
 
-        .thumbnail-uploader.has-preview {
+        .image-uploader.has-preview {
           position: relative;
           padding: 0;
           border-style: solid;
         }
 
-        .thumbnail-uploader img {
+        .image-uploader img {
           width: 100%;
-          height: 250px;
-          object-fit: cover;
+          height: 230px;
+          object-fit: contain;
+          background: #fff;
           display: block;
         }
 
-        .thumbnail-empty {
+        .image-empty {
           width: 100%;
           display: grid;
           place-items: center;
-          gap: 18px;
+          gap: 16px;
           text-align: center;
         }
 
-        .thumbnail-icon {
-          width: 78px;
-          height: 78px;
+        .image-icon {
+          width: 70px;
+          height: 70px;
           display: grid;
           place-items: center;
-          border-radius: 22px;
+          border-radius: 18px;
           color: #16a34a;
           background: rgba(22, 163, 74, 0.12);
           border: 1px solid rgba(22, 163, 74, 0.22);
         }
 
-        .thumbnail-text {
+        .image-text {
           display: grid;
-          gap: 8px;
+          gap: 7px;
         }
 
-        .thumbnail-text strong {
+        .image-text strong {
           color: var(--text);
           font-size: 1rem;
           font-weight: 950;
           letter-spacing: -0.02em;
         }
 
-        .thumbnail-text small {
+        .image-text small {
           color: var(--muted);
           font-size: 0.76rem;
           font-weight: 800;
         }
 
-        .thumbnail-choose-btn,
-        .thumbnail-change-btn {
+        .image-choose-btn,
+        .image-change-btn {
           display: inline-flex;
           align-items: center;
           justify-content: center;
           gap: 8px;
           width: min(100%, 340px);
-          min-height: 46px;
+          min-height: 44px;
           padding: 10px 18px;
           border-radius: 999px;
           background: rgba(3, 9, 5, 0.72);
           color: #fff;
-          font-size: 0.86rem;
+          font-size: 0.84rem;
           font-weight: 950;
           backdrop-filter: blur(12px);
         }
 
-        .thumbnail-change-btn {
+        .image-change-btn {
           position: absolute;
-          left: 16px;
-          right: 16px;
-          bottom: 16px;
+          left: 14px;
+          right: 14px;
+          bottom: 14px;
           width: auto;
         }
 
-        .thumbnail-meta {
+        .image-meta {
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -458,7 +601,7 @@ const ProductForm = ({ onSubmit }) => {
           border: 1px solid var(--border);
         }
 
-        .thumbnail-meta p {
+        .image-meta p {
           margin: 0;
           color: var(--muted);
           font-size: 0.78rem;
@@ -468,7 +611,7 @@ const ProductForm = ({ onSubmit }) => {
           text-overflow: ellipsis;
         }
 
-        .thumbnail-meta button {
+        .image-meta button {
           display: inline-flex;
           align-items: center;
           gap: 5px;
@@ -507,19 +650,19 @@ const ProductForm = ({ onSubmit }) => {
             grid-template-columns: 1fr;
           }
 
-          .thumbnail-uploader {
-            min-height: 230px;
-            padding: 22px 14px;
+          .image-uploader {
+            min-height: 210px;
+            padding: 20px 14px;
           }
 
-          .thumbnail-uploader img {
-            height: 230px;
+          .image-uploader img {
+            height: 210px;
           }
 
-          .thumbnail-icon {
-            width: 66px;
-            height: 66px;
-            border-radius: 18px;
+          .image-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
           }
         }
       `}</style>
