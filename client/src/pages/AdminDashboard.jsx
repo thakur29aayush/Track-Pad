@@ -8,12 +8,16 @@ import {
   Plus,
   ReceiptText,
   RefreshCw,
-  ShieldCheck,
   TrendingUp,
   Users,
 } from "lucide-react";
 import Button from "../components/common/Button";
 import { getAdminStats } from "../services/adminApi";
+
+const formatCurrency = (value) => {
+  const amount = Number(value || 0);
+  return `₹${amount.toLocaleString("en-IN")}`;
+};
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -23,7 +27,7 @@ const AdminDashboard = () => {
     try {
       setStatus("Loading dashboard...");
       const data = await getAdminStats();
-      setStats(data);
+      setStats(data || {});
       setStatus("");
     } catch {
       setStats(null);
@@ -35,36 +39,133 @@ const AdminDashboard = () => {
     loadStats();
   }, []);
 
+  const revenue = useMemo(() => {
+    return (
+      Number(
+        stats?.revenue ??
+          stats?.totalRevenue ??
+          stats?.paidRevenue ??
+          stats?.totalAmount ??
+          stats?.earnings ??
+          0
+      ) || 0
+    );
+  }, [stats]);
+
   const statCards = useMemo(
     () => [
-      { label: "Total Users", value: stats?.users ?? 0, icon: Users, tone: "green", link: "/admin/users" },
-      { label: "Products", value: stats?.products ?? 0, icon: Package, tone: "gold" },
-      { label: "Orders", value: stats?.orders ?? 0, icon: ReceiptText, tone: "green" },
-      { label: "Bookings", value: stats?.bookings ?? 0, icon: CalendarCheck, tone: "gold" },
-      { label: "Revenue", value: `₹${(stats?.revenue ?? 0).toLocaleString("en-IN")}`, icon: IndianRupee, tone: "green" },
+      {
+        label: "Total Users",
+        value: stats?.users ?? stats?.totalUsers ?? 0,
+        icon: Users,
+        tone: "green",
+        link: "/admin/users",
+      },
+      {
+        label: "Products",
+        value: stats?.products ?? stats?.totalProducts ?? 0,
+        icon: Package,
+        tone: "gold",
+      },
+      {
+        label: "Orders",
+        value: stats?.orders ?? stats?.totalOrders ?? 0,
+        icon: ReceiptText,
+        tone: "green",
+      },
+      {
+        label: "Bookings",
+        value: stats?.bookings ?? stats?.totalBookings ?? 0,
+        icon: CalendarCheck,
+        tone: "gold",
+      },
+      {
+        label: "Revenue",
+        value: formatCurrency(revenue),
+        icon: IndianRupee,
+        tone: "green",
+      },
     ],
-    [stats]
+    [stats, revenue]
+  );
+
+  const summaryRows = useMemo(
+    () => [
+      {
+        label: "Total Users",
+        value: stats?.users ?? stats?.totalUsers ?? 0,
+        icon: Users,
+      },
+      {
+        label: "Active Products",
+        value: stats?.products ?? stats?.totalProducts ?? 0,
+        icon: Package,
+      },
+      {
+        label: "Total Orders",
+        value: stats?.orders ?? stats?.totalOrders ?? 0,
+        icon: ReceiptText,
+      },
+      {
+        label: "Bookings",
+        value: stats?.bookings ?? stats?.totalBookings ?? 0,
+        icon: CalendarCheck,
+      },
+      {
+        label: "Revenue",
+        value: formatCurrency(revenue),
+        icon: IndianRupee,
+      },
+    ],
+    [stats, revenue]
   );
 
   const adminLinks = [
-    { to: "/admin/products", title: "Manage Products", description: "Add, edit, disable, and organize digital products.", icon: Package, button: "Products" },
-    { to: "/admin/orders", title: "View Orders", description: "Track payments, purchases, and customer order history.", icon: ReceiptText, button: "Orders" },
-    { to: "/admin/bookings", title: "Counselling Bookings", description: "Review bookings and update counselling session status.", icon: CalendarCheck, button: "Bookings" },
+    {
+      to: "/admin/products",
+      title: "Manage Products",
+      description: "Add, edit, disable, and organize digital products.",
+      icon: Package,
+      button: "Products",
+    },
+    {
+      to: "/admin/orders",
+      title: "View Orders",
+      description: "Track payments, purchases, and customer order history.",
+      icon: ReceiptText,
+      button: "Orders",
+    },
+    {
+      to: "/admin/bookings",
+      title: "Counselling Bookings",
+      description: "Review bookings and update counselling session status.",
+      icon: CalendarCheck,
+      button: "Bookings",
+    },
   ];
 
   return (
     <section className="admin-page">
       <header className="admin-header">
         <div>
-          <h1>Welcome back, <span>Admin.</span></h1>
-          <p>Manage products, orders, customers, and counselling bookings from one clean dashboard.</p>
+          <h1>
+            Welcome back, <span>Admin.</span>
+          </h1>
+          <p>
+            Manage products, orders, customers, and counselling bookings from one
+            clean dashboard.
+          </p>
         </div>
+
         <div className="admin-header-actions">
           <button type="button" onClick={loadStats} className="header-btn">
             <RefreshCw size={14} /> Refresh
           </button>
+
           <Link to="/admin/products">
-            <Button><Plus size={14} /> Add Product</Button>
+            <Button>
+              <Plus size={14} /> Add Product
+            </Button>
           </Link>
         </div>
       </header>
@@ -74,20 +175,37 @@ const AdminDashboard = () => {
       <div className="admin-stats-grid">
         {statCards.map((item) => {
           const Icon = item.icon;
+
           const content = (
             <>
-              <div className={`stat-icon ${item.tone}`}><Icon size={18} /></div>
+              <div className={`stat-icon ${item.tone}`}>
+                <Icon size={18} />
+              </div>
+
               <div>
                 <strong>{item.value}</strong>
                 <span>{item.label}</span>
               </div>
+
               {item.link && <ArrowRight size={14} className="stat-arrow" />}
             </>
           );
+
           return item.link ? (
-            <Link key={item.label} to={item.link} className={`admin-stat-card ${item.tone}`}>{content}</Link>
+            <Link
+              key={item.label}
+              to={item.link}
+              className={`admin-stat-card ${item.tone}`}
+            >
+              {content}
+            </Link>
           ) : (
-            <article key={item.label} className={`admin-stat-card ${item.tone}`}>{content}</article>
+            <article
+              key={item.label}
+              className={`admin-stat-card ${item.tone}`}
+            >
+              {content}
+            </article>
           );
         })}
       </div>
@@ -98,16 +216,22 @@ const AdminDashboard = () => {
             <h2>Management</h2>
             <p>Quick access to the main admin sections.</p>
           </div>
+
           <div className="admin-actions-grid">
             {adminLinks.map((item) => {
               const Icon = item.icon;
+
               return (
                 <article key={item.to} className="admin-action-card">
-                  <div className="action-icon"><Icon size={18} /></div>
+                  <div className="action-icon">
+                    <Icon size={18} />
+                  </div>
+
                   <div>
                     <h3>{item.title}</h3>
                     <p>{item.description}</p>
                   </div>
+
                   <Link to={item.to} className="action-link">
                     {item.button} <ArrowRight size={13} />
                   </Link>
@@ -119,21 +243,21 @@ const AdminDashboard = () => {
 
         <aside className="admin-panel summary-panel">
           <div className="panel-head">
-            <h2><TrendingUp size={15} /> Store Summary</h2>
+            <h2>
+              <TrendingUp size={15} /> Store Summary
+            </h2>
             <p>Current platform snapshot.</p>
           </div>
+
           <div className="summary-list">
-            {[
-              { label: "Total Users", value: stats?.users ?? 0, icon: Users },
-              { label: "Active Products", value: stats?.products ?? 0, icon: Package },
-              { label: "Total Orders", value: stats?.orders ?? 0, icon: ReceiptText },
-              { label: "Bookings", value: stats?.bookings ?? 0, icon: CalendarCheck },
-              { label: "Revenue", value: `₹${(stats?.revenue ?? 0).toLocaleString("en-IN")}`, icon: IndianRupee },
-            ].map((row) => {
+            {summaryRows.map((row) => {
               const Icon = row.icon;
+
               return (
                 <div key={row.label}>
-                  <span><Icon size={13} /> {row.label}</span>
+                  <span>
+                    <Icon size={13} /> {row.label}
+                  </span>
                   <strong>{row.value}</strong>
                 </div>
               );
@@ -143,11 +267,28 @@ const AdminDashboard = () => {
       </div>
 
       <style>{`
-        * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
-        *::-webkit-scrollbar { width: 6px; height: 6px; }
-        *::-webkit-scrollbar-track { background: transparent; }
-        *::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
-        *::-webkit-scrollbar-corner { background: transparent; }
+        * {
+          scrollbar-width: thin;
+          scrollbar-color: var(--border) transparent;
+        }
+
+        *::-webkit-scrollbar {
+          width: 6px;
+          height: 6px;
+        }
+
+        *::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        *::-webkit-scrollbar-thumb {
+          background: var(--border);
+          border-radius: 99px;
+        }
+
+        *::-webkit-scrollbar-corner {
+          background: transparent;
+        }
 
         .admin-page {
           padding: 18px 0 42px;
@@ -167,22 +308,6 @@ const AdminDashboard = () => {
           background: var(--card);
           border: 1px solid var(--border);
           box-shadow: var(--shadow);
-        }
-
-        .admin-eyebrow {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          margin: 0 0 8px;
-          padding: 4px 10px;
-          border-radius: 999px;
-          background: rgba(22,163,74,0.12);
-          color: #16a34a;
-          border: 1px solid rgba(22,163,74,0.2);
-          font-size: 10px;
-          font-weight: 900;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
         }
 
         .admin-header h1 {
@@ -234,9 +359,9 @@ const AdminDashboard = () => {
         .admin-status {
           padding: 10px 14px;
           border-radius: 12px;
-          background: rgba(22,163,74,0.1);
+          background: rgba(22, 163, 74, 0.1);
           color: #16a34a;
-          border: 1px solid rgba(22,163,74,0.2);
+          border: 1px solid rgba(22, 163, 74, 0.2);
           font-size: 0.8rem;
           font-weight: 700;
           margin: 0;
@@ -252,6 +377,7 @@ const AdminDashboard = () => {
           display: flex;
           align-items: center;
           gap: 10px;
+          min-width: 0;
           padding: 14px;
           border-radius: 16px;
           background: var(--card);
@@ -265,7 +391,7 @@ const AdminDashboard = () => {
 
         .admin-stat-card:hover {
           transform: translateY(-2px);
-          border-color: rgba(22,163,74,0.3);
+          border-color: rgba(22, 163, 74, 0.3);
         }
 
         .stat-icon {
@@ -277,16 +403,27 @@ const AdminDashboard = () => {
           flex-shrink: 0;
         }
 
-        .stat-icon.green { background: rgba(22,163,74,0.12); color: #16a34a; }
-        .stat-icon.gold  { background: rgba(214,179,0,0.14); color: #b89400; }
+        .stat-icon.green {
+          background: rgba(22, 163, 74, 0.12);
+          color: #16a34a;
+        }
+
+        .stat-icon.gold {
+          background: rgba(214, 179, 0, 0.14);
+          color: #b89400;
+        }
 
         .admin-stat-card strong {
-          font-size: 1.35rem;
+          max-width: 100%;
+          font-size: 1.25rem;
           font-weight: 950;
           color: var(--text);
           display: block;
           line-height: 1;
           letter-spacing: -0.04em;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .admin-stat-card span {
@@ -322,7 +459,9 @@ const AdminDashboard = () => {
           box-shadow: var(--shadow);
         }
 
-        .panel-head { margin-bottom: 14px; }
+        .panel-head {
+          margin-bottom: 14px;
+        }
 
         .panel-head h2 {
           margin: 0;
@@ -334,7 +473,9 @@ const AdminDashboard = () => {
           gap: 7px;
         }
 
-        .panel-head h2 svg { color: #16a34a; }
+        .panel-head h2 svg {
+          color: #16a34a;
+        }
 
         .panel-head p {
           margin: 4px 0 0;
@@ -343,7 +484,10 @@ const AdminDashboard = () => {
           line-height: 1.4;
         }
 
-        .admin-actions-grid { display: grid; gap: 8px; }
+        .admin-actions-grid {
+          display: grid;
+          gap: 8px;
+        }
 
         .admin-action-card {
           display: grid;
@@ -359,7 +503,7 @@ const AdminDashboard = () => {
 
         .admin-action-card:hover {
           transform: translateY(-1px);
-          border-color: rgba(22,163,74,0.28);
+          border-color: rgba(22, 163, 74, 0.28);
         }
 
         .action-icon {
@@ -368,7 +512,7 @@ const AdminDashboard = () => {
           display: grid;
           place-items: center;
           border-radius: 12px;
-          background: rgba(22,163,74,0.12);
+          background: rgba(22, 163, 74, 0.12);
           color: #16a34a;
           flex-shrink: 0;
         }
@@ -396,18 +540,27 @@ const AdminDashboard = () => {
           font-size: 0.76rem;
           font-weight: 900;
           color: #16a34a;
-          background: rgba(22,163,74,0.1);
-          border: 1px solid rgba(22,163,74,0.18);
+          background: rgba(22, 163, 74, 0.1);
+          border: 1px solid rgba(22, 163, 74, 0.18);
           text-decoration: none;
           white-space: nowrap;
           transition: background 0.15s ease;
         }
 
-        .action-link:hover { background: rgba(22,163,74,0.18); }
+        .action-link:hover {
+          background: rgba(22, 163, 74, 0.18);
+        }
 
-        .summary-panel { display: flex; flex-direction: column; }
+        .summary-panel {
+          display: flex;
+          flex-direction: column;
+        }
 
-        .summary-list { display: grid; gap: 2px; flex: 1; }
+        .summary-list {
+          display: grid;
+          gap: 2px;
+          flex: 1;
+        }
 
         .summary-list div {
           display: flex;
@@ -418,7 +571,9 @@ const AdminDashboard = () => {
           border-bottom: 1px solid var(--border);
         }
 
-        .summary-list div:last-child { border-bottom: 0; }
+        .summary-list div:last-child {
+          border-bottom: 0;
+        }
 
         .summary-list span {
           display: inline-flex;
@@ -429,31 +584,62 @@ const AdminDashboard = () => {
           color: var(--muted);
         }
 
-        .summary-list span svg { color: #16a34a; opacity: 0.7; }
+        .summary-list span svg {
+          color: #16a34a;
+          opacity: 0.7;
+        }
 
         .summary-list strong {
           font-size: 0.95rem;
           font-weight: 950;
           color: #16a34a;
           letter-spacing: -0.03em;
+          white-space: nowrap;
         }
 
         @media (max-width: 1060px) {
-          .admin-stats-grid { grid-template-columns: repeat(3, 1fr); }
-          .admin-content-grid { grid-template-columns: 1fr; }
+          .admin-stats-grid {
+            grid-template-columns: repeat(3, 1fr);
+          }
+
+          .admin-content-grid {
+            grid-template-columns: 1fr;
+          }
         }
 
         @media (max-width: 760px) {
-          .admin-header { grid-template-columns: 1fr; padding: 18px; }
-          .admin-header-actions { justify-content: flex-start; }
-          .admin-stats-grid { grid-template-columns: repeat(2, 1fr); }
-          .admin-action-card { grid-template-columns: auto 1fr; }
-          .action-link { grid-column: 1 / -1; justify-content: center; }
+          .admin-header {
+            grid-template-columns: 1fr;
+            padding: 18px;
+          }
+
+          .admin-header-actions {
+            justify-content: flex-start;
+          }
+
+          .admin-stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+
+          .admin-action-card {
+            grid-template-columns: auto 1fr;
+          }
+
+          .action-link {
+            grid-column: 1 / -1;
+            justify-content: center;
+          }
         }
 
         @media (max-width: 520px) {
-          .admin-stats-grid { grid-template-columns: 1fr; }
-          .header-btn { width: 100%; justify-content: center; }
+          .admin-stats-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .header-btn {
+            width: 100%;
+            justify-content: center;
+          }
         }
       `}</style>
     </section>
