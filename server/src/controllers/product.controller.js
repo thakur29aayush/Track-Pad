@@ -2,8 +2,17 @@ const { z } = require("zod");
 const prisma = require("../config/prisma");
 const createSlug = require("../utils/slug");
 
+const nullableText = z
+  .string()
+  .trim()
+  .optional()
+  .nullable()
+  .transform((value) => value || null);
+
 const productSchema = z.object({
   title: z.string().trim().min(2, "Title must be at least 2 characters."),
+
+  description: nullableText,
 
   price: z.coerce
     .number()
@@ -20,19 +29,9 @@ const productSchema = z.object({
 
   deliveryType: z.enum(["LINK", "FILE", "BOTH", "BOOKING"]),
 
-  deliveryUrl: z
-    .string()
-    .trim()
-    .optional()
-    .nullable()
-    .transform((value) => value || null),
+  deliveryUrl: nullableText,
 
-  fileUrl: z
-    .string()
-    .trim()
-    .optional()
-    .nullable()
-    .transform((value) => value || null),
+  fileUrl: nullableText,
 
   isActive: z
     .union([z.boolean(), z.string()])
@@ -111,6 +110,7 @@ async function createProduct(req, res, next) {
     const product = await prisma.product.create({
       data: {
         title: data.title,
+        description: data.description,
         slug,
         price: data.price,
         currency: "INR",
