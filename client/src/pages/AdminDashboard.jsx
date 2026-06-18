@@ -127,6 +127,7 @@ const AdminDashboard = () => {
       description: "Add, edit, disable, and organize digital products.",
       icon: Package,
       button: "Products",
+      featured: true,
     },
     {
       to: "/admin/orders",
@@ -161,12 +162,6 @@ const AdminDashboard = () => {
           <button type="button" onClick={loadStats} className="header-btn">
             <RefreshCw size={14} /> Refresh
           </button>
-
-          <Link to="/admin/products">
-            <Button>
-              <Plus size={14} /> Add Product
-            </Button>
-          </Link>
         </div>
       </header>
 
@@ -222,12 +217,17 @@ const AdminDashboard = () => {
               const Icon = item.icon;
 
               return (
-                <article key={item.to} className="admin-action-card">
+                <article
+                  key={item.to}
+                  className={`admin-action-card ${
+                    item.featured ? "featured-product-card" : ""
+                  }`}
+                >
                   <div className="action-icon">
                     <Icon size={18} />
                   </div>
 
-                  <div>
+                  <div className="action-content">
                     <h3>{item.title}</h3>
                     <p>{item.description}</p>
                   </div>
@@ -235,6 +235,12 @@ const AdminDashboard = () => {
                   <Link to={item.to} className="action-link">
                     {item.button} <ArrowRight size={13} />
                   </Link>
+
+                  {item.featured && (
+                    <Link to="/admin/products" className="add-product-link">
+                      <Plus size={14} /> Add Product
+                    </Link>
+                  )}
                 </article>
               );
             })}
@@ -486,6 +492,7 @@ const AdminDashboard = () => {
 
         .admin-actions-grid {
           display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
           gap: 8px;
         }
 
@@ -494,11 +501,17 @@ const AdminDashboard = () => {
           grid-template-columns: auto 1fr auto;
           align-items: center;
           gap: 12px;
+          min-width: 0;
           padding: 14px;
           border-radius: 14px;
           background: var(--bg);
           border: 1px solid var(--border);
           transition: transform 0.18s ease, border-color 0.18s ease;
+        }
+
+        .featured-product-card {
+          grid-column: 1 / -1;
+          grid-template-columns: auto 1fr auto;
         }
 
         .admin-action-card:hover {
@@ -517,6 +530,10 @@ const AdminDashboard = () => {
           flex-shrink: 0;
         }
 
+        .action-content {
+          min-width: 0;
+        }
+
         .admin-action-card h3 {
           margin: 0;
           font-size: 0.9rem;
@@ -529,26 +546,45 @@ const AdminDashboard = () => {
           font-size: 0.78rem;
           color: var(--muted);
           line-height: 1.4;
+          overflow-wrap: anywhere;
         }
 
-        .action-link {
+        .action-link,
+        .add-product-link {
           display: inline-flex;
           align-items: center;
+          justify-content: center;
           gap: 5px;
           padding: 7px 12px;
           border-radius: 999px;
           font-size: 0.76rem;
           font-weight: 900;
-          color: #16a34a;
-          background: rgba(22, 163, 74, 0.1);
-          border: 1px solid rgba(22, 163, 74, 0.18);
           text-decoration: none;
           white-space: nowrap;
           transition: background 0.15s ease;
         }
 
+        .action-link {
+          color: #16a34a;
+          background: rgba(22, 163, 74, 0.1);
+          border: 1px solid rgba(22, 163, 74, 0.18);
+        }
+
         .action-link:hover {
           background: rgba(22, 163, 74, 0.18);
+        }
+
+        .add-product-link {
+          grid-column: 1 / -1;
+          width: 100%;
+          padding: 10px 14px;
+          color: var(--text);
+          background: var(--card);
+          border: 1px dashed rgba(22, 163, 74, 0.35);
+        }
+
+        .add-product-link:hover {
+          background: rgba(22, 163, 74, 0.1);
         }
 
         .summary-panel {
@@ -621,13 +657,22 @@ const AdminDashboard = () => {
             grid-template-columns: repeat(2, 1fr);
           }
 
-          .admin-action-card {
+          .admin-actions-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .admin-action-card,
+          .featured-product-card {
             grid-template-columns: auto 1fr;
           }
 
           .action-link {
             grid-column: 1 / -1;
-            justify-content: center;
+            width: 100%;
+          }
+
+          .add-product-link {
+            grid-column: 1 / -1;
           }
         }
 
