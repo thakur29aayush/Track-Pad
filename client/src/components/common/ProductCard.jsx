@@ -5,7 +5,6 @@ import {
   BadgeCheck,
   Download,
   FileText,
-  Sparkles,
   Star,
   Zap,
 } from "lucide-react";
@@ -38,16 +37,6 @@ const getOldPrice = (price) => {
   return Math.round(amount * 2);
 };
 
-const checkIsNewProduct = (createdAt) => {
-  if (!createdAt) return false;
-
-  const createdTime = new Date(createdAt).getTime();
-  if (Number.isNaN(createdTime)) return false;
-
-  const diffDays = (Date.now() - createdTime) / (1000 * 60 * 60 * 24);
-  return diffDays <= 14;
-};
-
 const ProductCard = ({ product }) => {
   if (!product) return null;
 
@@ -58,16 +47,13 @@ const ProductCard = ({ product }) => {
 
   const oldPrice = useMemo(() => getOldPrice(product.price), [product.price]);
   const isFree = useMemo(() => Number(product.price || 0) <= 0, [product.price]);
-  const isNew = useMemo(
-    () => checkIsNewProduct(product.createdAt),
-    [product.createdAt]
-  );
 
   const formattedType = useMemo(() => formatLabel(product.type), [product.type]);
   const formattedDelivery = useMemo(
     () => formatLabel(product.deliveryType),
     [product.deliveryType]
   );
+
   const displayPrice = useMemo(() => formatPrice(product.price), [product.price]);
 
   return (
@@ -90,7 +76,7 @@ const ProductCard = ({ product }) => {
           {imageUrl ? (
             <img
               src={imageUrl}
-              alt={product.title || "Product Workspace"}
+              alt={product.title || "Product thumbnail"}
               loading="lazy"
             />
           ) : (
@@ -214,10 +200,10 @@ const ProductCard = ({ product }) => {
 
         .product-media {
           position: relative;
-          height: 178px;
+          height: 190px;
           overflow: hidden;
           background:
-            linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(245, 216, 0, 0.06)),
+            linear-gradient(135deg, rgba(34, 197, 94, 0.08), rgba(245, 216, 0, 0.06)),
             var(--bg, #f8fafc);
           border-bottom: 1px solid var(--border, #e2e8f0);
         }
@@ -225,16 +211,19 @@ const ProductCard = ({ product }) => {
         .product-media img {
           width: 100%;
           height: 100%;
-          object-fit: cover;
+          object-fit: contain;
+          object-position: center;
           display: block;
+          padding: 12px;
+          background: var(--bg, #f8fafc);
           transition:
-            transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
-            filter 0.45s ease;
+            transform 0.35s ease,
+            filter 0.35s ease;
         }
 
         .product-card:hover .product-media img {
-          transform: scale(1.045);
-          filter: saturate(1.05) contrast(1.03);
+          transform: scale(1.02);
+          filter: saturate(1.05) contrast(1.02);
         }
 
         .product-badges {
@@ -267,15 +256,8 @@ const ProductCard = ({ product }) => {
 
         .floating-badge.featured {
           color: #15803d;
-          background: rgba(255, 255, 255, 0.9);
+          background: rgba(255, 255, 255, 0.92);
           border: 1px solid rgba(34, 197, 94, 0.22);
-        }
-
-        .floating-badge.new {
-          margin-left: auto;
-          color: #9a6700;
-          background: rgba(255, 255, 255, 0.9);
-          border: 1px solid rgba(245, 216, 0, 0.28);
         }
 
         .product-placeholder {
@@ -305,7 +287,7 @@ const ProductCard = ({ product }) => {
           justify-content: flex-end;
           padding: 12px;
           background:
-            linear-gradient(to top, rgba(15, 23, 42, 0.42), transparent 58%);
+            linear-gradient(to top, rgba(15, 23, 42, 0.34), transparent 58%);
           opacity: 0;
           transition: opacity 0.22s ease;
         }
@@ -477,11 +459,11 @@ const ProductCard = ({ product }) => {
 
         @media (max-width: 520px) {
           .product-media {
-            height: 160px;
+            height: 165px;
           }
 
-          .product-top-row {
-            align-items: flex-start;
+          .product-media img {
+            padding: 10px;
           }
 
           .price-stack {
@@ -493,11 +475,6 @@ const ProductCard = ({ product }) => {
           .product-info-row {
             grid-template-columns: 1fr;
             gap: 7px;
-          }
-
-          .product-bottom {
-            flex-direction: row;
-            align-items: center;
           }
         }
       `}</style>
