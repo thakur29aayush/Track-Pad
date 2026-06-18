@@ -56,10 +56,12 @@ const ProductCard = ({ product }) => {
 
   const displayPrice = useMemo(() => formatPrice(product.price), [product.price]);
 
+  const productSlug = product.slug || product.id;
+
   return (
     <article className="product-card">
       <Link
-        to={`/products/${product.slug}`}
+        to={`/products/${productSlug}`}
         className="product-card-link"
         aria-label={`View details for ${product.title || "product"}`}
       >
@@ -150,11 +152,8 @@ const ProductCard = ({ product }) => {
         .product-card {
           position: relative;
           overflow: hidden;
-          border-radius: 22px;
-          background:
-            radial-gradient(circle at top left, rgba(34, 197, 94, 0.07), transparent 34%),
-            linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.015)),
-            var(--card, #ffffff);
+          border-radius: 18px;
+          background: var(--card, #ffffff);
           border: 1px solid var(--border, #e2e8f0);
           box-shadow: var(--shadow, 0 18px 45px rgba(15, 23, 42, 0.06));
           transition:
@@ -163,34 +162,15 @@ const ProductCard = ({ product }) => {
             box-shadow 0.22s ease;
         }
 
-        .product-card::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          background:
-            radial-gradient(circle at top right, rgba(245, 216, 0, 0.12), transparent 38%),
-            radial-gradient(circle at bottom left, rgba(34, 197, 94, 0.08), transparent 42%);
-          opacity: 0;
-          transition: opacity 0.22s ease;
-          z-index: 1;
-        }
-
         .product-card:hover {
-          transform: translateY(-5px);
-          border-color: rgba(34, 197, 94, 0.3);
+          transform: translateY(-4px);
+          border-color: rgba(34, 197, 94, 0.32);
           box-shadow:
             0 22px 48px rgba(15, 23, 42, 0.1),
             0 14px 26px rgba(34, 197, 94, 0.08);
         }
 
-        .product-card:hover::before {
-          opacity: 1;
-        }
-
         .product-card-link {
-          position: relative;
-          z-index: 2;
           display: flex;
           flex-direction: column;
           height: 100%;
@@ -200,29 +180,28 @@ const ProductCard = ({ product }) => {
 
         .product-media {
           position: relative;
-          height: 190px;
+          width: 100%;
+          height: 220px;
           overflow: hidden;
-          background:
-            linear-gradient(135deg, rgba(34, 197, 94, 0.08), rgba(245, 216, 0, 0.06)),
-            var(--bg, #f8fafc);
+          background: #111;
           border-bottom: 1px solid var(--border, #e2e8f0);
         }
 
         .product-media img {
           width: 100%;
           height: 100%;
-          object-fit: contain;
-          object-position: center;
           display: block;
-          padding: 12px;
-          background: var(--bg, #f8fafc);
+          object-fit: cover;
+          object-position: top center;
+          padding: 0;
+          background: transparent;
           transition:
             transform 0.35s ease,
             filter 0.35s ease;
         }
 
         .product-card:hover .product-media img {
-          transform: scale(1.02);
+          transform: scale(1.03);
           filter: saturate(1.05) contrast(1.02);
         }
 
@@ -231,7 +210,7 @@ const ProductCard = ({ product }) => {
           top: 12px;
           left: 12px;
           right: 12px;
-          z-index: 4;
+          z-index: 5;
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -243,7 +222,7 @@ const ProductCard = ({ product }) => {
           display: inline-flex;
           align-items: center;
           gap: 4px;
-          padding: 5px 8px;
+          padding: 6px 9px;
           border-radius: 999px;
           font-size: 0.62rem;
           font-weight: 900;
@@ -255,24 +234,27 @@ const ProductCard = ({ product }) => {
         }
 
         .floating-badge.featured {
-          color: #15803d;
-          background: rgba(255, 255, 255, 0.92);
-          border: 1px solid rgba(34, 197, 94, 0.22);
+          color: #f5d800;
+          background: rgba(8, 18, 12, 0.88);
+          border: 1px solid rgba(34, 197, 94, 0.28);
         }
 
         .product-placeholder {
+          width: 100%;
           height: 100%;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 2px;
+          gap: 3px;
           color: #22c55e;
-          opacity: 0.9;
+          background:
+            radial-gradient(circle at top, rgba(34, 197, 94, 0.18), transparent 35%),
+            #111827;
         }
 
         .product-placeholder strong {
-          font-size: 2.7rem;
+          font-size: 3rem;
           font-weight: 950;
           letter-spacing: -0.06em;
           line-height: 1;
@@ -281,13 +263,12 @@ const ProductCard = ({ product }) => {
         .media-overlay {
           position: absolute;
           inset: 0;
-          z-index: 3;
+          z-index: 4;
           display: flex;
           align-items: flex-end;
           justify-content: flex-end;
           padding: 12px;
-          background:
-            linear-gradient(to top, rgba(15, 23, 42, 0.34), transparent 58%);
+          background: linear-gradient(to top, rgba(15, 23, 42, 0.45), transparent 58%);
           opacity: 0;
           transition: opacity 0.22s ease;
         }
@@ -313,7 +294,7 @@ const ProductCard = ({ product }) => {
           display: flex;
           flex-direction: column;
           flex: 1;
-          padding: 15px;
+          padding: 18px;
         }
 
         .product-top-row {
@@ -321,7 +302,7 @@ const ProductCard = ({ product }) => {
           align-items: flex-start;
           justify-content: space-between;
           gap: 10px;
-          margin-bottom: 11px;
+          margin-bottom: 12px;
         }
 
         .type-pill {
@@ -331,9 +312,13 @@ const ProductCard = ({ product }) => {
           align-items: center;
           gap: 4px;
           color: #22c55e;
-          font-size: 0.64rem;
+          background: rgba(34, 197, 94, 0.08);
+          border: 1px solid rgba(34, 197, 94, 0.15);
+          padding: 5px 8px;
+          border-radius: 999px;
+          font-size: 0.65rem;
           font-weight: 900;
-          letter-spacing: 0.06em;
+          letter-spacing: 0.04em;
           text-transform: uppercase;
           white-space: nowrap;
           overflow: hidden;
@@ -342,30 +327,26 @@ const ProductCard = ({ product }) => {
 
         .price-stack {
           display: flex;
-          align-items: flex-end;
-          gap: 7px;
+          align-items: center;
+          gap: 8px;
           white-space: nowrap;
           flex-shrink: 0;
         }
 
         .old-price {
           color: #ef4444;
-          font-size: 1.02rem;
+          font-size: 1rem;
           font-weight: 950;
           line-height: 1;
           text-decoration: line-through;
-          opacity: 0.88;
+          opacity: 0.9;
         }
 
         .sale-price {
           color: #16a34a;
-          font-size: 0.82rem;
-          font-weight: 900;
+          font-size: 1rem;
+          font-weight: 950;
           line-height: 1;
-          padding: 3px 8px;
-          border-radius: 999px;
-          background: rgba(34, 197, 94, 0.09);
-          border: 1px solid rgba(34, 197, 94, 0.14);
         }
 
         .free-price {
@@ -378,10 +359,10 @@ const ProductCard = ({ product }) => {
         .product-body h3 {
           margin: 0 0 7px;
           color: var(--text, #0f172a);
-          font-size: 1.06rem;
-          line-height: 1.25;
+          font-size: 1.15rem;
+          line-height: 1.15;
           letter-spacing: -0.025em;
-          font-weight: 900;
+          font-weight: 950;
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
@@ -390,7 +371,7 @@ const ProductCard = ({ product }) => {
 
         .product-body p {
           min-height: 38px;
-          margin: 0 0 13px;
+          margin: 0 0 14px;
           color: var(--muted, #64748b);
           font-size: 0.82rem;
           line-height: 1.48;
@@ -406,7 +387,7 @@ const ProductCard = ({ product }) => {
           grid-template-columns: repeat(2, minmax(0, 1fr));
           gap: 8px;
           margin-top: auto;
-          margin-bottom: 13px;
+          margin-bottom: 14px;
         }
 
         .product-info-row span {
@@ -437,7 +418,7 @@ const ProductCard = ({ product }) => {
           align-items: center;
           justify-content: space-between;
           gap: 8px;
-          padding-top: 12px;
+          padding-top: 13px;
           border-top: 1px solid var(--border, #e2e8f0);
           color: var(--muted, #64748b);
           font-size: 0.76rem;
@@ -459,11 +440,15 @@ const ProductCard = ({ product }) => {
 
         @media (max-width: 520px) {
           .product-media {
-            height: 165px;
+            height: 210px;
           }
 
-          .product-media img {
-            padding: 10px;
+          .product-body {
+            padding: 15px;
+          }
+
+          .product-top-row {
+            align-items: flex-start;
           }
 
           .price-stack {

@@ -144,7 +144,10 @@ const Products = () => {
   };
 
   const hasFilters =
-    query.trim() || type !== "ALL" || priceFilter !== "ALL" || sortBy !== "LATEST";
+    query.trim() ||
+    type !== "ALL" ||
+    priceFilter !== "ALL" ||
+    sortBy !== "LATEST";
 
   const isLoading = status && !statusError;
 
@@ -834,7 +837,7 @@ const Products = () => {
         .product-card {
           position: relative;
           overflow: hidden;
-          border-radius: 22px;
+          border-radius: 18px;
           background: var(--card);
           border: 1px solid var(--border);
           box-shadow: var(--shadow);
@@ -862,7 +865,7 @@ const Products = () => {
           position: absolute;
           top: 12px;
           right: 12px;
-          z-index: 5;
+          z-index: 20;
           display: inline-flex;
           align-items: center;
           gap: 7px;
@@ -891,37 +894,40 @@ const Products = () => {
         }
 
         .product-image {
-  height: 185px;
-  background:
-    linear-gradient(135deg, rgba(34, 197, 94, 0.08), rgba(245, 216, 0, 0.06)),
-    var(--bg);
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  border-bottom: 1px solid var(--border);
-}
+          width: 100%;
+          height: 220px;
+          overflow: hidden;
+          background: #111;
+          border-bottom: 1px solid var(--border);
+        }
 
-.product-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center;
-  padding: 12px;
-  display: block;
-  background: var(--bg);
-}
-  .product-card:hover .product-image img {
-  transform: none;
-}
+        .product-image img {
+          width: 100%;
+          height: 100%;
+          display: block;
+          object-fit: cover;
+          object-position: top center;
+          padding: 0;
+          background: transparent;
+          transition: transform 0.35s ease;
+        }
+
+        .product-card:hover .product-image img {
+          transform: scale(1.03);
+        }
 
         .product-image span {
+          width: 100%;
+          height: 100%;
+          display: grid;
+          place-items: center;
           font-size: 3rem;
           color: #22c55e;
           font-weight: 950;
         }
 
         .product-info {
-          padding: 14px;
+          padding: 18px;
         }
 
         .product-type {
@@ -939,7 +945,7 @@ const Products = () => {
         .product-info h3 {
           margin: 10px 0 6px;
           color: var(--text);
-          font-size: 1rem;
+          font-size: 1.15rem;
           line-height: 1.15;
           font-weight: 950;
         }
@@ -976,7 +982,7 @@ const Products = () => {
 
         .details-link {
           display: inline-flex;
-          margin-top: 12px;
+          margin-top: 16px;
           color: #22c55e;
           font-size: 0.78rem;
           font-weight: 900;
@@ -1103,6 +1109,10 @@ const Products = () => {
           .products-skeleton-grid,
           .products-grid {
             grid-template-columns: 1fr;
+          }
+
+          .product-image {
+            height: 210px;
           }
         }
       `}</style>
